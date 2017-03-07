@@ -24,7 +24,7 @@ app.get('/address/:address', function(req, res, next){
     from: address,
     to: req.params.address,
     gas: 21500,
-    value: 1e16,
+    value: (parseFloat(process.env.AMOUNT) || 1.5) * 1e18,
     data: '0xde5f72fd', // sha3('faucet()')
     nonce,
   }, (err, txID) => {
