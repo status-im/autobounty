@@ -23,12 +23,13 @@ app.get('/address/:address', function(req, res, next){
   eth.sendTransaction({
     from: address,
     to: req.params.address,
-    gas: 21500,
+    gas: 100000,
     value: (parseFloat(process.env.AMOUNT) || 1.5) * 1e18,
     data: '0xde5f72fd', // sha3('faucet()')
     nonce,
   }, (err, txID) => {
     if (err) {
+      nonce -= 1;
       console.log('Request failed', err)
       return res.status(500).json(err)
     }
