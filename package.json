@@ -14,6 +14,7 @@
     "ethjs-provider-signer": "^0.1.4",
     "ethjs-query": "^0.2.4",
     "ethjs-signer": "^0.1.1",
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "web3": "^0.18.2"
   }
 }
