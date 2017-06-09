@@ -10,9 +10,9 @@ const provider = new SignerProvider(process.env.NODE, {
 });
 const eth = new Eth(provider);
 
-var express = require('express')
-  , cors = require('cors')
-  , app = express();
+var express = require('express'),
+    cors = require('cors'),
+    app = express();
 
 app.use(cors());
 
