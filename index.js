@@ -40,4 +40,4 @@ app.get('/address/:address', function(req, res, next){
 
 const port = process.env.PORT || 8181
 app.listen(port, function(){
-  console.log('Faucet listening on port', port);
+  console.log('Autobounty listening on port', port);
