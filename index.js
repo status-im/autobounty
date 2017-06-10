@@ -3,6 +3,7 @@
  * and in case it's a comment that has "@autobounty <decimal> <currency>"
  * awards that bounty to the address posted earlier in the thread (by the
  * commiteth bot).
+ * TODO tests
  */
 
 const SignerProvider = require('ethjs-provider-signer');
@@ -43,9 +44,10 @@ app.post('/address/:address', function(req, res, next){
         res.json({ txID })
       }
     });
-  })
+  });
 });
 
 const port = process.env.PORT || 8181
 app.listen(port, function(){
   console.log('Autobounty listening on port', port);
+});
