@@ -1,3 +1,10 @@
+/*
+ * Bot that receives a POST request (from a GitHub issue comment webhook)
+ * and in case it's a comment that has "@autobounty <decimal> <currency>"
+ * awards that bounty to the address posted earlier in the thread (by the
+ * commiteth bot).
+ */
+
 const SignerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
@@ -16,13 +23,14 @@ var express = require('express'),
 
 app.use(cors());
 
-app.get('/address/:address', function(req, res, next){
+// Receive a POST request at the address specified by an env. var.
+app.post('/address/:address', function(req, res, next){
   eth.getTransactionCount(address, (err, nonce) => {
     eth.sendTransaction({
-      from: address,
-      to: req.params.address,
+      from: address, // Specified in webhook, secret
+      to: req.params.address, // TODO replace with address from earlier in the thread
       gas: 100000,
-      value: (parseFloat(process.env.AMOUNT) || 1.5) * 1e18,
+      value: (parseFloat(process.env.AMOUNT) || 1.5) * 1e18, // TODO replace with parsed amount from comments
       data: '0xde5f72fd', // sha3('faucet()')
       nonce,
     }, (err, txID) => {
