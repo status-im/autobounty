@@ -20,8 +20,11 @@ const eth = new Eth(provider);
 
 var express = require('express'),
     cors = require('cors'),
-    app = express();
+    app = express(),
+    bodyParser = require('body-parser'),
+    jsonParser = bodyParser.json();
 
+app.use(jsonParser);
 app.use(cors());
 
 // Receive a POST request at the address specified by an env. var.

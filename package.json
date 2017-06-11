@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "cors": "^2.8.1",
     "ethjs-provider-signer": "^0.1.4",
     "ethjs-query": "^0.2.4",
