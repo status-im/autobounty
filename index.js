@@ -40,10 +40,12 @@ app.post('/' + address.toString(), jsonParser, function(req, res, next){
   var issueId = req.body.issue.id;
   var namePosition = commentBody.search("@" + name);
   // Store toAddress from commiteth
-  if (namePosition == -1 && req.body.comment.user.login == 'commiteth') { // TODO no existence check
-    issueData[issueId] = {"toAddress": commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)}
-    console.log(issueData);
-    return res.status(204);
+  if (namePosition == -1 ) {
+    if (req.body.comment.user.login == 'commiteth') {  // TODO no existence check
+      issueData[issueId] = {"toAddress": commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)}
+      console.log(issueData);
+      return res.status(204);
+    }
   }
   else {
     var postNameWords = commentBody.substring(namePosition + 1 + name.length + 1).trim().split(' ');
