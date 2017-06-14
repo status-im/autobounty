@@ -33,14 +33,14 @@ app.use(cors());
 var issueData = {};
 
 // Receive a POST request at the address specified by an env. var.
-app.post('/address/:address', jsonParser, function(req, res, next){
+app.post('/' + address.toString(), jsonParser, function(req, res, next){
   if (!req.body)
     return res.sendStatus(400);
   var commentBody = req.body.comment.body;
   var issueId = req.body.issue.id;
   var namePosition = commentBody.search("@" + name);
   // Store toAddress from commiteth
-  if (namePosition == -1) {
+  if (namePosition == -1 && req.body.comment.user.login == 'commiteth') { // TODO no existence check
     issueData[issueId] = {"toAddress": commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)}
     console.log(issueData);
     return res.status(204);
@@ -66,7 +66,6 @@ app.post('/address/:address', jsonParser, function(req, res, next){
         to: issueData[issueId].toAddress, // Address from earlier in the thread
         gas: 100000,
         value: issueData[issueId].amount,
-        data: '0xde5f72fd', // sha3('faucet()')
         nonce,
       }, (err, txID) => {
         if (err) {
