@@ -4,7 +4,7 @@
  * awards that bounty to the address posted earlier in the thread (by the
  * commiteth bot).
  * TODO tests
- * REVIEW parsing, non-persisting storage of addresses, hardcoded string length. 
+ * REVIEW parsing, non-persisting storage of addresses, hardcoded string length.
  * Depends on commiteth version as of 2017-06-10.
  */
 
@@ -14,6 +14,7 @@ const Eth = require('ethjs-query');
 
 const address = process.env.ADDRESS;
 const name = process.env.NAME;
+const webhook_secret = process.env.WEBHOOK_SECRET;
 
 const provider = new SignerProvider(process.env.NODE, {
   signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
@@ -33,7 +34,7 @@ app.use(cors());
 var issueData = {};
 
 // Receive a POST request at the address specified by an env. var.
-app.post('/' + address.toString(), jsonParser, function(req, res, next){
+app.post(`/comment/${webhook_secret}`, jsonParser, function(req, res, next){
   if (!req.body)
     return res.sendStatus(400);
   var commentBody = req.body.comment.body;
