@@ -1,5 +1,7 @@
 # Status OpenBounty Autobounty <img align="right" src="https://github.com/status-im/autobounty/blob/master/status.png" height="80px" />
 
+### Massive Thanks to the Amazing Aragon Team for starting this project! Original repo **[here](https://github.com/aragon/autobounty)**
+
 #### Status Autobounty bot for OpenBounty
 A Github bot that will automatically fund issues that are labelled with **[bounty](https://github.com/status-im/status-react/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abountyy)**.
 These bounties will use [Status OpenBounty](https://openbounty.status.im/) to incentivize community members to participate and contribute to  the development of Open Source Software projects like Status, Riot and Aragon.
