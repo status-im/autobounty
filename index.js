@@ -8,13 +8,14 @@
  * Depends on commiteth version as of 2017-06-10.
  */
 
+const config = require('./config');
+
 const SignerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
 
 const address = process.env.ADDRESS;
 const name = process.env.NAME;
-const webhook_secret = process.env.WEBHOOK_SECRET;
 
 const provider = new SignerProvider(process.env.NODE, {
   signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
@@ -33,11 +34,13 @@ app.use(cors());
 // Store issue ids and their bounty addresses
 var issueData = {};
 
+
 // Receive a POST request at the address specified by an env. var.
-app.post(`/comment/${webhook_secret}`, jsonParser, function(req, res, next){
+app.post(`${config.webhook.URLEndpoint}`, jsonParser, function(req, res, next){
   if (!req.body)
     return res.sendStatus(400);
-  var commentBody = req.body.comment.body;
+  return res.sendStatus(200)  
+ /*var commentBody = req.body.comment.body;
   var issueId = req.body.issue.id;
   var namePosition = commentBody.search("@" + name);
   // Store toAddress from commiteth
@@ -81,7 +84,7 @@ app.post(`/comment/${webhook_secret}`, jsonParser, function(req, res, next){
         }
       });
     });
-  }
+  }*/
 });
 
 const port = process.env.PORT || 8181
