@@ -7,84 +7,49 @@
  * REVIEW parsing, non-persisting storage of addresses, hardcoded string length.
  * Depends on commiteth version as of 2017-06-10.
  */
-
+https://duckduckgo.com/
 const config = require('./config');
-
-const SignerProvider = require('ethjs-provider-signer');
-const sign = require('ethjs-signer').sign;
-const Eth = require('ethjs-query');
-
-const address = process.env.ADDRESS;
-const name = process.env.NAME;
-
-const provider = new SignerProvider(process.env.NODE, {
-  signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
-  accounts: (cb) => cb(null, [address]),
-});
-const eth = new Eth(provider);
 
 var express = require('express'),
     cors = require('cors'),
+    helmet = require('helmet'),
     app = express(),
     bodyParser = require('body-parser'),
     jsonParser = bodyParser.json();
 
 app.use(cors());
-
-// Store issue ids and their bounty addresses
-var issueData = {};
-
+app.use(helmet());
 
 // Receive a POST request at the address specified by an env. var.
-app.post(`${config.webhook.URLEndpoint}`, jsonParser, function(req, res, next){
-  if (!req.body)
+app.post(`${config.webhook.URLEndpoint}`, jsonParser, function(req, res, next) {
+  if (!req.body || !req.body.action)
     return res.sendStatus(400);
-  return res.sendStatus(200)  
- /*var commentBody = req.body.comment.body;
-  var issueId = req.body.issue.id;
-  var namePosition = commentBody.search("@" + name);
-  // Store toAddress from commiteth
-  if (namePosition == -1 ) {
-    if (req.body.comment.user.login == 'commiteth') {  // TODO no existence check
-      issueData[issueId] = {"toAddress": commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)}
-      console.log(issueData);
-      return res.status(204);
-    }
-  }
-  else {
-    var postNameWords = commentBody.substring(namePosition + 1 + name.length + 1).trim().split(' ');
-    var amount = 0;
-    if (postNameWords.length > 0) {
-      if(postNameWords[0] == "standard") {
-        amount = process.env.STANDARD_BOUNTY;
+
+  if (!config.needsFunding(req))
+    return res.sendStatus(204);
+
+  const eth = config.eth;
+  const address = config.address;
+  const toAddress = config.getAddress(req);
+  const amount = config.getAmount(req);
+  
+  eth.getTransactionCount(address, (err, nonce) => {
+    eth.sendTransaction({
+      from: address, 
+      to: toAddress, // Address from earlier in the thread
+      gas: 100000,
+      value: amount,
+      nonce,
+    }, (err, txID) => {
+      if (err) {
+        config.log('Request failed', err)
+        return res.status(500).json(err)
       }
       else {
-        amount = parseFloat(postNameWords[0]);
+        config.log('Successful request:', txID)
+        res.json({ txID })
       }
-    }
-    console.log("Trying to give " + amount + " ETH to " + issueData[issueId].toAddress + " for issue " + issueId);
-    issueData[issueId].amount = amount;
-
-    // Conduct the transaction
-    eth.getTransactionCount(address, (err, nonce) => {
-      eth.sendTransaction({
-        from: address, // Specified in webhook, secret
-        to: issueData[issueId].toAddress, // Address from earlier in the thread
-        gas: 100000,
-        value: issueData[issueId].amount,
-        nonce,
-      }, (err, txID) => {
-        if (err) {
-          console.log('Request failed', err)
-          return res.status(500).json(err)
-        }
-        else {
-          console.log('Successful request:', txID)
-          res.json({ txID })
-        }
-      });
-    });
-  }*/
+  }); 
 });
 
 const port = process.env.PORT || 8181
