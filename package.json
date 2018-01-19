@@ -12,6 +12,7 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "cors": "^2.8.1",
+    "eslint": "^4.15.0",
     "ethjs-provider-signer": "^0.1.4",
     "ethjs-query": "^0.2.4",
     "ethjs-signer": "^0.1.1",

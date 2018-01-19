@@ -7,8 +7,9 @@
  * REVIEW parsing, non-persisting storage of addresses, hardcoded string length.
  * Depends on commiteth version as of 2017-06-10.
  */
-https://duckduckgo.com/
+
 const config = require('./config');
+const bot = require('./bot');
 
 var express = require('express'),
     cors = require('cors'),
@@ -21,23 +22,26 @@ app.use(cors());
 app.use(helmet());
 
 // Receive a POST request at the address specified by an env. var.
-app.post(`${config.webhook.URLEndpoint}`, jsonParser, function(req, res, next) {
+app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
+    // TODO decide how long the delay to start everything should be
   if (!req.body || !req.body.action)
     return res.sendStatus(400);
 
   if (!config.needsFunding(req))
     return res.sendStatus(204);
 
-  const eth = config.eth;
-  const address = config.address;
-  const toAddress = config.getAddress(req);
+  const eth = bot.eth;
+  const from = config.sourceAddress;
+  const to = bot.getAddress(req);
   const amount = config.getAmount(req);
-  
+  const gasPrice = bot.getGasPrice();
+
   eth.getTransactionCount(address, (err, nonce) => {
     eth.sendTransaction({
-      from: address, 
-      to: toAddress, // Address from earlier in the thread
-      gas: 100000,
+      from: from,
+      to: to,
+      gas: gas,
+      gasPrice: gasPrice,
       value: amount,
       nonce,
     }, (err, txID) => {
@@ -49,7 +53,7 @@ app.post(`${config.webhook.URLEndpoint}`, jsonParser, function(req, res, next) {
         config.log('Successful request:', txID)
         res.json({ txID })
       }
-  }); 
+  });
 });
 
 const port = process.env.PORT || 8181
