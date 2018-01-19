@@ -29,7 +29,7 @@ app.post(`${config.webhook.URLEndpoint}`, jsonParser, function(req, res, next) {
 
   const eth = config.eth;
   const address = config.address;
-  const toAddress = config.getAddress(req);
+  const toAddress = config.getAddress(reqreq.body.comment.body);
   const amount = config.getAmount(req);
   
   eth.getTransactionCount(address, (err, nonce) => {

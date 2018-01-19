@@ -18,9 +18,9 @@ const needsFunding = function(req) {
     return true
 }
 
-const getAddress = function(req) {
-    commentBody = req.body.comment.body;
-    return  commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
+const getAddress = function(commentBody) {
+    //TODO: check possible errors
+    commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
 }
 
 const getAmount = function(req) {
@@ -28,6 +28,7 @@ const getAmount = function(req) {
 }
 
 const log = function() {
+    //TODO: Log into a file by default
     console.log(arguments);
 }
 
