@@ -7,7 +7,6 @@
  * REVIEW parsing, non-persisting storage of addresses, hardcoded string length.
  * Depends on commiteth version as of 2017-06-10.
  */
-https://duckduckgo.com/
 const config = require('./config');
 
 var express = require('express'),
