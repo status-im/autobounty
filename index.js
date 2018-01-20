@@ -53,6 +53,7 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
         config.log('Successful request:', txID)
         res.json({ txID })
       }
+    });
   });
 });
 
