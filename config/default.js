@@ -5,5 +5,5 @@ module.exports = {
     token: "SNT",
     gasLimit: 92000,
     priceHour: 35,
-    workHours: {xs: 2000, s: 2500
+    workHours: {xs: 2000, s: 2500}
 }
