@@ -2,7 +2,7 @@ const SignerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
 const Prices = require('./prices');
-const Config = require('./config');
+const Config = require('../config');
 
 
 const provider = new SignerProvider(Config.signerPath, {
@@ -11,6 +11,10 @@ const provider = new SignerProvider(Config.signerPath, {
 });
 const eth = new Eth(provider);
 
+
+const labels = {
+    
+}
 
 const needsFunding = function(req) {
     if (req.action !== 'created' || !req.hasOwnProperty('comment'))
@@ -27,7 +31,7 @@ const getAddress = function(req) {
 }
 
 const getLabel = function(req){
-    return "XS";
+    
 }
 
 const getAmount = function(req) {
@@ -37,8 +41,8 @@ const getAmount = function(req) {
     let amountToPayDollar = config.priceHour * config.workHours[label];
 
     tokenPricePromise
-    .then((tokenPrice) => return tokenPrice * config.amountToPayInDollars )
-    .catch((err) => console.log("TODO-ERROR: Failed token price request throw log error");
+    .then((tokenPrice) => {return tokenPrice * config.amountToPayInDollars} )
+    .catch((err) => {console.log("TODO-ERROR: Failed token price request throw log error")});
     // Check how to handle errors when promises does not arrive
 
 }
@@ -47,8 +51,8 @@ const getGasPrice = function(req) {
     let gasPricePromise = Prices.getGasPrice();
 
     gasPricePromise
-    .then((gasPrice) => return gasPrice)
-    .catch((err) => console.log("TODO-ERROR: Failed gas price request throw log error");
+    .then((gasPrice) => {return gasPrice})
+    .catch((err) => {console.log("TODO-ERROR: Failed gas price request throw log error")});
     // Check how to handle errors when promises does not arrive
 }
 
