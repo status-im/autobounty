@@ -33,7 +33,7 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
   //const eth = bot.eth;
   //const from = config.sourceAddress;
   //const to = bot.getAddress(req);
-  const amount = config.getAmount(req);
+  const amount = bot.getAmount(req);
   const gasPrice = bot.getGasPrice();
   console.log('amount: ', amount);
   console.log('gasPrice: ', gasPrice);
