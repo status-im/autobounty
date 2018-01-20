@@ -1,7 +1,7 @@
 const SignerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
-const Prices = require('./prices');
+const prices = require('./prices');
 const config = require('../config');
 
 
@@ -48,7 +48,7 @@ const getLabel = function(req) {
 }
 
 const getAmount = function(req) {
-    let tokenPricePromise = Prices.getTokenPrice(config.token);
+    let tokenPricePromise = prices.getTokenPrice(config.token);
 
     let label = getLabel(req);
     let amountToPayDollar = config.priceHour * config.workHours[label];
@@ -61,7 +61,7 @@ const getAmount = function(req) {
 }
 
 const getGasPrice = function(req) {
-    let gasPricePromise = Prices.getGasPrice();
+    let gasPricePromise = prices.getGasPrice();
 
     gasPricePromise
     .then((gasPrice) => {return gasPrice})

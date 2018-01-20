@@ -59,6 +59,6 @@ const getTokenPrice = function(token) {
 }
 
 module.exports = {
-    getGasPriceInWei: getGasPrice,
+    getGasPrice: getGasPrice,
     getTokenPrice : getTokenPrice
 }
