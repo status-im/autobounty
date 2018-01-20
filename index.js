@@ -27,15 +27,17 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
   if (!req.body || !req.body.action)
     return res.sendStatus(400);
 
-  if (!config.needsFunding(req))
+  if (!bot.needsFunding(req))
     return res.sendStatus(204);
 
-  const eth = bot.eth;
-  const from = config.sourceAddress;
-  const to = bot.getAddress(req);
+  //const eth = bot.eth;
+  //const from = config.sourceAddress;
+  //const to = bot.getAddress(req);
   const amount = config.getAmount(req);
   const gasPrice = bot.getGasPrice();
-
+  console.log('amount: ', amount);
+  console.log('gasPrice: ', gasPrice);
+  /*
   eth.getTransactionCount(address, (err, nonce) => {
     eth.sendTransaction({
       from: from,
@@ -55,6 +57,8 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
       }
     });
   });
+  */
+  return res.sendStatus(200);
 });
 
 const port = process.env.PORT || 8181

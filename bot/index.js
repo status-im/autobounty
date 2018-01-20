@@ -12,26 +12,39 @@ const provider = new SignerProvider(Config.signerPath, {
 const eth = new Eth(provider);
 
 
-const labels = {
-    
-}
+const bountyLabels = {
+    'bounty-xs': 1, 
+    'bounty-s': 10,
+    'bounty-m': 100, 
+    'bounty-l': 1000,
+    'bounty-xl': 10000,
+    'bounty-xx': 100000
+};
 
 const needsFunding = function(req) {
     if (req.action !== 'created' || !req.hasOwnProperty('comment'))
         return false
-    else if (req.comment.user.login !== 'status-open-bounty')
-        return false
+    //else if (req.comment.user.login !== 'status-open-bounty')
+    //    return false
 
     return true
 }
 
 const getAddress = function(req) {
-    commentBody = req.body.comment.body;
+    let commentBody = req.body.comment.body;
     return  commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
 }
 
-const getLabel = function(req){
+const getLabel = function(req) {
+    let labelNames = req.body.issue.labels.map(lableObj => lableObj.name);
+
+    labels = labelNames.filter(name => bountyLabels.hasOwnProperty(name));
+
+    if (labels.length == 1)
+        return labels[0];
     
+    //log error
+    return 0;
 }
 
 const getAmount = function(req) {
