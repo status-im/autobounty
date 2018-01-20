@@ -2,10 +2,10 @@ const SignerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
 const Prices = require('./prices');
-const Config = require('../config');
+const config = require('../config');
 
 
-const provider = new SignerProvider(Config.signerPath, {
+const provider = new SignerProvider(config.signerPath, {
   signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
   accounts: (cb) => cb(null, [address]),
 });
@@ -48,7 +48,7 @@ const getLabel = function(req) {
 }
 
 const getAmount = function(req) {
-    let tokenPricePromise = Prices.getTokenPrice(Config.token);
+    let tokenPricePromise = Prices.getTokenPrice(config.token);
 
     let label = getLabel(req);
     let amountToPayDollar = config.priceHour * config.workHours[label];
