@@ -22,7 +22,7 @@ const bountyLabels = {
 };
 
 const needsFunding = function(req) {
-    if (req.action !== 'created' || !req.hasOwnProperty('comment'))
+    if (req.body.action !== 'created' || !req.body.hasOwnProperty('comment'))
         return false
     //else if (req.comment.user.login !== 'status-open-bounty')
     //    return false
