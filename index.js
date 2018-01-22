@@ -21,20 +21,21 @@ jsonParser = bodyParser.json();
 app.use(cors());
 app.use(helmet());
 
-// Receive a POST request at the address specified by an env. var.
+// Receive a POST request at the url specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
-    // TODO decide how long the delay to start everything should be
-    console.log('Request: ', req)
     if (!req.body || !req.body.action) {
-
         bot.error('', 'Wrong format');
         return res.sendStatus(400);
-    }
-
-    if (!bot.needsFunding(req)) {
+    } else if (!bot.needsFunding(req)) {
         return res.sendStatus(204);
     }
 
+    setTimeout(function (req, res) {
+        processRequest(req, res);
+    }, config.delayInMiliSeconds);
+});
+
+const processRequest = function(req, res) {
     const eth = bot.eth;
     const from = config.sourceAddress;
     const to = bot.getAddress(req);
@@ -45,14 +46,21 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
 
     Promise.all([amountPromise, gasPricePromise])
     .then(function(amount, gasPrice){
-        sendTransaction(eth, from, to, amount, gasPrice);
+        let transaction = sendTransaction(eth, from, to, amount, gasPrice);
+        
+        transaction
+        .then(function() {
+            return res.sendStatus(200);
+        })
+        .catch(function(error) {
+            bot.error(req.body, error);
+        });
+        
     })
     .catch(function(error) {
         bot.error(req.body, error);
     });
-
-});
-
+}
 
 const sendTransaction = function(eth, from, to, amount, gasPrice){
     if (!config.debug){
@@ -76,8 +84,6 @@ const sendTransaction = function(eth, from, to, amount, gasPrice){
                 }
             });
         });
-
-        return res.sendStatus(200);
     } else {
         let txID = -1;
         bot.logTransaction(txID, from, to, amount, gasPrice);
