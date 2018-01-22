@@ -11,12 +11,8 @@ const getLabelsURL = function(req) {
     return url.replace('{/name}', '');
 }
 
-<<<<<<< HEAD
-const getLabel = function(req) {
-=======
 // Returns all labelNames of a given issue (Github API v3)
 const getLabels = function(req) {
->>>>>>> 06d132a007e0008829bbf7e496836eec065c84bf
     let url = getLabelsURL(req);
     const options = {
       hostname: 'api.github.com',
@@ -51,5 +47,5 @@ const getLabels = function(req) {
 }
 
 module.exports = {
-    getLabel: getLabel
+    getLabels: getLabels
 }
