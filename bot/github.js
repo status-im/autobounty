@@ -3,7 +3,7 @@
 const https = require('https');
 const config = require('../config');
 
-// Returns the url for getting the labels of a request (Github v3)
+// Returns the url for getting the labels of a request (Github API v3)
 // req has req.issue.labels_url
 const getLabelsURL = function(req) {
     let url = req.issue.labels_url;
@@ -11,6 +11,7 @@ const getLabelsURL = function(req) {
     return url.replace('{/name}', '');
 }
 
+// Returns all labelNames of a given issue (Github API v3)
 const getLabels = function(req) {
     let url = getLabelsURL(req);
     return new Promise((resolve, reject) => {
