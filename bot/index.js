@@ -30,7 +30,7 @@ const getAddress = function(req) {
 }
 
 const getLabel = function(req) {
-    return github.getLabel(req).then(labels => {
+    return github.getLabels(req).then(labels => {
             if (labels.length === 1) {
                 return labels[0];
             } else {
@@ -45,7 +45,7 @@ const getLabel = function(req) {
 
 const getAmount = function(req) {
     return new Promise((resolve, reject) => {
-        let labelPromise = getLabel(req);
+        let labelPromise = getLabels(req);
         let tokenPricePromise = prices.getTokenPrice(config.token);
 
         Promise.all([labelPromise, tokenPricePromise])
