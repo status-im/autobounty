@@ -25,6 +25,7 @@ app.use(helmet());
 app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
     // TODO decide how long the delay to start everything should be
     if (!req.body || !req.body.action) {
+        bot.error(req, 'Wrong format');
         return res.sendStatus(400);
     }
 
@@ -42,13 +43,13 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
 
     Promise.all([amountPromise, gasPricePromise])
     .then(function(amount, gasPrice){
-        sendTransaction(eth, from, to, amount, gasPrice)
+        sendTransaction(eth, from, to, amount, gasPrice);
     })
-    .catch(function(error){
+    .catch(function(error) {
         bot.error(req.body, error);
     });
 
-}
+});
 
 
 const sendTransaction = function(eth, from, to, amount, gasPrice){
@@ -68,7 +69,7 @@ const sendTransaction = function(eth, from, to, amount, gasPrice){
                     return res.status(500).json(err)
                 }
                 else {
-                    bot.logFunding(txID, from, to, amount, gasPrice);
+                    bot.logTransaction(txID, from, to, amount, gasPrice);
                     res.json({ txID })
                 }
             });
@@ -77,7 +78,7 @@ const sendTransaction = function(eth, from, to, amount, gasPrice){
         return res.sendStatus(200);
     } else {
         let txId = -1;
-        bot.logFunding(txID, from, to, amount, gasPrice);
+        bot.logTransaction(txID, from, to, amount, gasPrice);
     }
 }
 
