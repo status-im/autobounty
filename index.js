@@ -24,8 +24,10 @@ app.use(helmet());
 // Receive a POST request at the address specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
     // TODO decide how long the delay to start everything should be
+    console.log('Request: ', req)
     if (!req.body || !req.body.action) {
-        bot.error(req, 'Wrong format');
+
+        bot.error('', 'Wrong format');
         return res.sendStatus(400);
     }
 
@@ -77,7 +79,7 @@ const sendTransaction = function(eth, from, to, amount, gasPrice){
 
         return res.sendStatus(200);
     } else {
-        let txId = -1;
+        let txID = -1;
         bot.logTransaction(txID, from, to, amount, gasPrice);
     }
 }

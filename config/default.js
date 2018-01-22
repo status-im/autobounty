@@ -13,10 +13,11 @@ const BOUNTY_LABELS = {
 module.exports = {
     debug: true,
     urlEndpoint: '/autobounty/fund',
-    logPath: '../log/',
+    logPath: './log/',
     signerPath: 'https://ropsten.infura.io',
     sourceAddress: 'XXXXX',
     token: 'SNT',
     gasLimit: 92000,
     priceHour: 35,
+    bountyLabels: BOUNTY_LABELS
 }

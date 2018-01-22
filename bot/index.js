@@ -1,15 +1,8 @@
 const winston = require('winston');
-const signerProvider = require('ethjs-provider-signer');
-const sign = require('ethjs-signer').sign;
-const eth = require('ethjs-query');
 const prices = require('./prices');
 const config = require('../config');
+const github = require('./github');
 
-const provider = new signerProvider(config.signerPath, {
-  signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
-  accounts: (cb) => cb(null, [address]),
-});
-const eth = new eth(provider);
 
 const logger = winston.createLogger({
   level: 'info',
@@ -37,14 +30,16 @@ const getAddress = function(req) {
 }
 
 const getLabel = function(req) {
-    return github.getLabels(req).then(labels => {
+    return github.getLabel(req).then(labels => {
             if (labels.length === 1) {
-                resolve(labels[0]);
+                return labels[0];
             } else {
-                // TODO: Handle error
+                error(req.body, 'More than 1 label found: ['+ labels.length + ']');
+                // reject(new Error('More than 1 label found: ['+ labels.length + ']'));
             }
         }).catch(err => {
-        // TODO: Handle error
+            error(req.body, 'Could not get label' + err);
+            // reject(new Error('Could not get label' + err));
     });
 }
 
@@ -52,14 +47,18 @@ const getAmount = function(req) {
     return new Promise((resolve, reject) => {
         let labelPromise = getLabel(req);
         let tokenPricePromise = prices.getTokenPrice(config.token);
-        Promise.all([labelPromise, tokenPricePromise]).then(function(values) {
-            let label = values[0];
-            let tockenPrice = values[1];
-            let amountToPayDollar = config.priceHour * config.workHours[label];
 
-            reslove(config.amountToPayDollar/tockenPrice);
-        }).catch(error => {
-            // TODO: Handle error
+        Promise.all([labelPromise, tokenPricePromise])
+        .then(function(values) {
+            let label = values[0];
+            let tokenPrice = values[1];
+            let amountToPayDollar = config.priceHour * config.bountyLabels[label];
+            console.log('Amount: ' + amountToPayDollar +', ' + tokenPrice);
+            resolve(config.amountToPayDollar/tokenPrice);
+        })
+        .catch(err => {
+            error(req.body, 'Failed to resolve label or token price: ' + err);
+            reject(new Error('Failed to resolve label or token price: ' + err));
         });
     });
 }
@@ -72,11 +71,11 @@ const getGasPrice = function(req) {
 // Logging functions
 
 const logTransaction = function(txId, from, to, amount, gasPrice){
-    logger.info("\n[OK] Succesfully funded bounty with transaction ", txId);
-    logger.info(" * From: ", from);
-    logger.info(" * To: ", to);
-    logger.info(" * Amount: ", amount);
-    logger.info(" * Gas Price: ", gasPrice);
+    logger.info("[OK] Succesfully funded bounty with transaction " + txId);
+    logger.info(" * From: " + from);
+    logger.info(" * To: " + to);
+    logger.info(" * Amount: " + amount);
+    logger.info(" * Gas Price: " +  gasPrice);
     logger.info("====================================================");
 }
 
@@ -85,13 +84,12 @@ const log = function(msg) {
 }
 
 const error = function(requestInfo, errorMessage) {
-    logger.error("[ERROR] Request processing failed: ", errorMessage);
-    logger.error("[ERROR] Request body: ", requestInfo);
+    logger.error("[ERROR] Request processing failed: " + errorMessage);
+    logger.error("[ERROR] Request: " + requestInfo);
 }
 
 
 module.exports = {
-    eth: new eth(provider),
     needsFunding: needsFunding,
     getAddress: getAddress,
     getAmount: getAmount,
