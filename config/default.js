@@ -1,3 +1,15 @@
+
+
+const BOUNTY_LABELS = {
+    'bounty-xs': 1, 
+    'bounty-s': 10,
+    'bounty-m': 100, 
+    'bounty-l': 1000,
+    'bounty-xl': 10000
+}
+
+
+
 module.exports = {
     urlEndpoint: "/autobounty/fund",
     signerPath: "https://ropsten.infura.io",
