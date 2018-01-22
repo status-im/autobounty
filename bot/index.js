@@ -36,29 +36,31 @@ const getAddress = function(req) {
 }
 
 const getLabel = function(req) {
-    return github.getLabels(req)
-            .then(labels => {
-                if (labels.length === 1) {
-                    resolve(labels[0]);
-                } else {
-                    // TODO: Handle error
-                }
-            }).catch(err => {
+    return github.getLabels(req).then(labels => {
+            if (labels.length === 1) {
+                resolve(labels[0]);
+            } else {
                 // TODO: Handle error
-            });
+            }
+        }).catch(err => {
+        // TODO: Handle error
+    });
 }
 
 const getAmount = function(req) {
-    let tokenPricePromise = prices.getTokenPrice(config.token);
+    return new Promise((resolve, reject) => {
+        let labelPromise = getLabel(req);
+        let tokenPricePromise = prices.getTokenPrice(config.token);
+        Promise.all([labelPromise, tokenPricePromise]).then(function(values) {
+            let label = values[0];
+            let tockenPrice = values[1];
+            let amountToPayDollar = config.priceHour * config.workHours[label];
 
-    let label = getLabel(req);
-    let amountToPayDollar = config.priceHour * config.workHours[label];
-
-    tokenPricePromise
-    .then((tokenPrice) => {return tokenPrice * config.amountToPayInDollars} )
-    .catch((err) => {console.log("TODO-ERROR: Failed token price request throw log error")});
-    // Check how to handle errors when promises does not arrive
-
+            reslove(config.amountToPayDollar/tockenPrice);
+        }).catch(error => {
+            // TODO: Handle error
+        });
+    });
 }
 
 const log = function(msg) {
