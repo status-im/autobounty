@@ -21,15 +21,6 @@ const logger = winston.createLogger({
   ]
 });
 
-const bountyLabels = {
-    'bounty-xs': 1, 
-    'bounty-s': 10,
-    'bounty-m': 100, 
-    'bounty-l': 1000,
-    'bounty-xl': 10000,
-    'bounty-xx': 100000
-};
-
 const needsFunding = function(req) {
     if (req.body.action !== 'created' || !req.body.hasOwnProperty('comment'))
         return false
@@ -45,15 +36,16 @@ const getAddress = function(req) {
 }
 
 const getLabel = function(req) {
-    let labelNames = req.body.issue.labels.map(lableObj => lableObj.name);
-
-    labels = labelNames.filter(name => bountyLabels.hasOwnProperty(name));
-
-    if (labels.length == 1)
-        return labels[0];
-    
-    //log error
-    return 0;
+    return github.getLabels(req)
+            .then(labels => {
+                if (labels.length === 1) {
+                    resolve(labels[0]);
+                } else {
+                    // TODO: Handle error
+                }
+            }).catch(err => {
+                // TODO: Handle error
+            });
 }
 
 const getAmount = function(req) {
@@ -69,15 +61,6 @@ const getAmount = function(req) {
 
 }
 
-const getGasPrice = function(req) {
-    let gasPricePromise = prices.getGasPrice();
-
-    gasPricePromise
-    .then((gasPrice) => {return gasPrice})
-    .catch((err) => {console.log("TODO-ERROR: Failed gas price request throw log error")});
-    // Check how to handle errors when promises does not arrive
-}
-
 const log = function(msg) {
     logger.info(msg);
 }
@@ -87,6 +70,6 @@ module.exports = {
     needsFunding: needsFunding,
     getAddress: getAddress,
     getAmount: getAmount,
-    getGasPrice: getGasPrice,
+    getGasPrice: prices.getGasPrice,
     log: log
 }
