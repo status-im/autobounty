@@ -1,25 +1,26 @@
 const winston = require('winston');
-const SignerProvider = require('ethjs-provider-signer');
+const signerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
-const Eth = require('ethjs-query');
+const eth = require('ethjs-query');
 const prices = require('./prices');
 const config = require('../config');
 
-const provider = new SignerProvider(config.signerPath, {
+const provider = new signerProvider(config.signerPath, {
   signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
   accounts: (cb) => cb(null, [address]),
 });
-const eth = new Eth(provider);
+const eth = new eth(provider);
 
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
   transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'info.log', level: 'info'}),
-    new winston.transports.File({ filename: 'combined.log' })
+    new winston.transports.File({ filename: config.logPath + 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: config.logPath + 'info.log', level: 'info'}),
+    new winston.transports.File({ filename: config.logPath + 'combined.log' })
   ]
 });
+
 
 const needsFunding = function(req) {
     if (req.body.action !== 'created' || !req.body.hasOwnProperty('comment'))
@@ -63,15 +64,39 @@ const getAmount = function(req) {
     });
 }
 
+const getGasPrice = function(req) {
+    let gasPricePromise = prices.getGasPrice();
+    return gasPricePromise;
+}
+
+// Logging functions
+
+const logTransaction = function(txId, from, to, amount, gasPrice){
+    logger.info("\n[OK] Succesfully funded bounty with transaction ", txId);
+    logger.info(" * From: ", from);
+    logger.info(" * To: ", to);
+    logger.info(" * Amount: ", amount);
+    logger.info(" * Gas Price: ", gasPrice);
+    logger.info("====================================================");
+}
+
 const log = function(msg) {
     logger.info(msg);
 }
 
+const error = function(requestInfo, errorMessage) {
+    logger.error("[ERROR] Request processing failed: ", errorMessage);
+    logger.error("[ERROR] Request body: ", requestInfo);
+}
+
+
 module.exports = {
-    eth: new Eth(provider),
+    eth: new eth(provider),
     needsFunding: needsFunding,
     getAddress: getAddress,
     getAmount: getAmount,
     getGasPrice: prices.getGasPrice,
-    log: log
+    log: log,
+    logTransaction: logTransaction,
+    error: error
 }

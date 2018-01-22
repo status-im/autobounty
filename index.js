@@ -12,56 +12,77 @@ const config = require('./config');
 const bot = require('./bot');
 
 var express = require('express'),
-   cors = require('cors'),
-   helmet = require('helmet'),
-   app = express(),
-   bodyParser = require('body-parser'),
-   jsonParser = bodyParser.json();
+cors = require('cors'),
+helmet = require('helmet'),
+app = express(),
+bodyParser = require('body-parser'),
+jsonParser = bodyParser.json();
 
 app.use(cors());
 app.use(helmet());
 
 // Receive a POST request at the address specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
-   // TODO decide how long the delay to start everything should be
- if (!req.body || !req.body.action)
-   return res.sendStatus(400);
+    // TODO decide how long the delay to start everything should be
+    if (!req.body || !req.body.action) {
+        bot.error(req, 'Wrong format');
+        return res.sendStatus(400);
+    }
 
- if (!bot.needsFunding(req))
-   return res.sendStatus(204);
+    if (!bot.needsFunding(req)) {
+        return res.sendStatus(204);
+    }
 
- //const eth = bot.eth;
- //const from = config.sourceAddress;
- //const to = bot.getAddress(req);
- const amount = bot.getAmount(req);
- const gasPrice = bot.getGasPrice();
- bot.log('amount: ' +  amount);
- bot.log('gasPrice: ' +  gasPrice);
- /*
- eth.getTransactionCount(address, (err, nonce) => {
-   eth.sendTransaction({
-     from: from,
-     to: to,
-     gas: gas,
-     gasPrice: gasPrice,
-     value: amount,
-     nonce,
-   }, (err, txID) => {
-     if (err) {
-       config.log('Request failed', err)
-       return res.status(500).json(err)
-     }
-     else {
-       config.log('Successful request:', txID)
-       res.json({ txID })
-     }
-   });
- });
- */
- return res.sendStatus(200);
+    const eth = bot.eth;
+    const from = config.sourceAddress;
+    const to = bot.getAddress(req);
+
+    // Asynchronous requests for Gas Price and Amount
+    const amountPromise = bot.getAmount(req);
+    const gasPricePromise = bot.getGasPrice();
+
+    Promise.all([amountPromise, gasPricePromise])
+    .then(function(amount, gasPrice){
+        sendTransaction(eth, from, to, amount, gasPrice);
+    })
+    .catch(function(error) {
+        bot.error(req.body, error);
+    });
+
 });
+
+
+const sendTransaction = function(eth, from, to, amount, gasPrice){
+    if (!config.debug){
+
+        eth.getTransactionCount(from, (err, nonce) => {
+            eth.sendTransaction({
+                from: from,
+                to: to,
+                gas: gas,
+                gasPrice: gasPrice,
+                value: amount,
+                nonce,
+            }, (err, txID) => {
+                if (err) {
+                    bot.error(req.body, err)
+                    return res.status(500).json(err)
+                }
+                else {
+                    bot.logTransaction(txID, from, to, amount, gasPrice);
+                    res.json({ txID })
+                }
+            });
+        });
+
+        return res.sendStatus(200);
+    } else {
+        let txId = -1;
+        bot.logTransaction(txID, from, to, amount, gasPrice);
+    }
+}
 
 const port = process.env.PORT || 8181
 app.listen(port, function(){
- console.log('Autobounty listening on port', port);
+    bot.log('Autobounty listening on port', port);
 });
