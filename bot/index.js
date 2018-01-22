@@ -1,9 +1,9 @@
+const winston = require('winston');
 const SignerProvider = require('ethjs-provider-signer');
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
 const prices = require('./prices');
 const config = require('../config');
-
 
 const provider = new SignerProvider(config.signerPath, {
   signTransaction: (rawTx, cb) => cb(null, sign(rawTx, process.env.KEY)),
@@ -11,6 +11,15 @@ const provider = new SignerProvider(config.signerPath, {
 });
 const eth = new Eth(provider);
 
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'info.log', level: 'info'}),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
 
 const bountyLabels = {
     'bounty-xs': 1, 
@@ -69,8 +78,8 @@ const getGasPrice = function(req) {
     // Check how to handle errors when promises does not arrive
 }
 
-const log = function() {
-    console.log(arguments);
+const log = function(msg) {
+    logger.info(msg);
 }
 
 module.exports = {
