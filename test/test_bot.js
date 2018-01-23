@@ -30,4 +30,37 @@ describe('Bot behavior', function() {
         assert.isTrue(bot.needsFunding(requests[3]));
       });
   });
+
+  describe('#getAddress', function() {
+    it('should return the address from a status-open-bounty bot comment', function() {
+        assert.equal(bot.getAddress(requests[3]),'0x3645fe42b1a744ad98cc032c22472388806f86f9');
+    });
+  });
+
+  // TODO: test getAmount which involves call to github and bounty tags
+  describe('#getAmount', function() {
+    it('should fail and log that there is no bounty label for this issue', function() {
+        // Code
+    });
+    it('should fail and log that there are more than one bounty labels for this  issue', function() {
+        // Code
+    });
+    it('should return the amount for the issue given the price per hour and the bounty label for this issue', function() {
+        // Code
+    });
+  });
+
+    // TODO: test getLabel which involves call to github and bounty tags
+    describe('#getGasPrice', function() {
+        it('should go to the gasStation and comeback with a reasonable number', function() {
+            bot.getGasPrice()
+            .then(function(gasPrice) {
+                assert.isNumber(gasPrice);
+            })
+            .catch(function() {
+                assert.fail();
+            })
+        });
+      });
+
 });
