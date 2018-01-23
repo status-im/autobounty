@@ -16,11 +16,11 @@ const logger = winston.createLogger({
 
 
 const needsFunding = function(req) {
-    if (req.body.action !== 'created' || !req.body.hasOwnProperty('comment'))
+    if (req.body.action !== 'created' || !req.body.hasOwnProperty('comment')) {
         return false
-    //else if (req.comment.user.login !== 'status-open-bounty')
-    //    return false
-
+    } else if (req.body.comment.user.login !== 'status-open-bounty') {
+        return false
+    }
     return true
 }
 
