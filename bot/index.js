@@ -53,7 +53,6 @@ const getAmount = function(req) {
             let label = values[0];
             let tokenPrice = values[1];
             let amountToPayDollar = config.priceHour * config.bountyLabels[label];
-            console.log('Amount: ' + amountToPayDollar +', ' + tokenPrice);
             resolve(config.amountToPayDollar/tokenPrice);
         })
         .catch(err => {
@@ -63,10 +62,6 @@ const getAmount = function(req) {
     });
 }
 
-const getGasPrice = function(req) {
-    let gasPricePromise = prices.getGasPrice();
-    return gasPricePromise;
-}
 
 // Logging functions
 
