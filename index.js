@@ -12,17 +12,17 @@ const config = require('./config');
 const bot = require('./bot');
 
 var express = require('express'),
-cors = require('cors'),
-helmet = require('helmet'),
-app = express(),
-bodyParser = require('body-parser'),
-jsonParser = bodyParser.json();
+    cors = require('cors'),
+    helmet = require('helmet'),
+    app = express(),
+    bodyParser = require('body-parser'),
+    jsonParser = bodyParser.json();
 
 app.use(cors());
 app.use(helmet());
 
 // Receive a POST request at the url specified by an env. var.
-app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
+app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
     if (!req.body || !req.body.action) {
         bot.error('', 'Wrong format');
         return res.sendStatus(400);
@@ -35,7 +35,7 @@ app.post(`${config.urlEndpoint}`, jsonParser, function(req, res, next) {
     }, config.delayInMiliSeconds);
 });
 
-const processRequest = function(req, res) {
+const processRequest = function (req, res) {
     const eth = bot.eth;
     const from = config.sourceAddress;
     const to = bot.getAddress(req);
@@ -45,25 +45,25 @@ const processRequest = function(req, res) {
     const gasPricePromise = bot.getGasPrice();
 
     Promise.all([amountPromise, gasPricePromise])
-    .then(function(amount, gasPrice){
-        let transaction = sendTransaction(eth, from, to, amount, gasPrice);
-        
-        transaction
-        .then(function() {
-            return res.sendStatus(200);
+        .then(function (amount, gasPrice) {
+            let transaction = sendTransaction(eth, from, to, amount, gasPrice);
+
+            transaction
+                .then(function () {
+                    return res.sendStatus(200);
+                })
+                .catch(function (error) {
+                    bot.error(req.body, error);
+                });
+
         })
-        .catch(function(error) {
+        .catch(function (error) {
             bot.error(req.body, error);
         });
-        
-    })
-    .catch(function(error) {
-        bot.error(req.body, error);
-    });
 }
 
-const sendTransaction = function(eth, from, to, amount, gasPrice){
-    if (!config.debug){
+const sendTransaction = function (eth, from, to, amount, gasPrice) {
+    if (!config.debug) {
 
         eth.getTransactionCount(from, (err, nonce) => {
             eth.sendTransaction({
@@ -91,6 +91,6 @@ const sendTransaction = function(eth, from, to, amount, gasPrice){
 }
 
 const port = process.env.PORT || 8181
-app.listen(port, function(){
+app.listen(port, function () {
     bot.log('Autobounty listening on port', port);
 });
