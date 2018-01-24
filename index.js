@@ -24,18 +24,26 @@ app.use(helmet());
 // Receive a POST request at the url specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
     if (!req.body || !req.body.action) {
-        bot.error('', 'Wrong format');
         return res.sendStatus(400);
     } else if (!bot.needsFunding(req)) {
         return res.sendStatus(204);
     }
 
-    setTimeout(function (req, res) {
-        processRequest(req, res);
+    setTimeout(() => {
+        processRequest(req)
+            .then(() => {
+                return res.sendStatus(200);
+            })
+            .catch((err) => {
+                bot.error('Error funding issue: ' + req.body.issue.url);
+                bot.error('error: ' + err);
+                bot.error('dump: ' + req);
+                return res.sendStatus(204);
+            });
     }, config.delayInMiliSeconds);
 });
 
-const processRequest = function (req, res) {
+const processRequest = function (req) {
     const eth = bot.eth;
     const from = config.sourceAddress;
     const to = bot.getAddress(req);
@@ -45,49 +53,51 @@ const processRequest = function (req, res) {
     const gasPricePromise = bot.getGasPrice();
 
     Promise.all([amountPromise, gasPricePromise])
-        .then(function (amount, gasPrice) {
+        .then(function (results) {
+            let amount = results[0];
+            let gasPrice = results[1];
             let transaction = sendTransaction(eth, from, to, amount, gasPrice);
 
             transaction
                 .then(function () {
                     return res.sendStatus(200);
                 })
-                .catch(function (error) {
-                    bot.error(req.body, error);
+                .catch(function (err) {
+                    reject(err);
                 });
 
         })
-        .catch(function (error) {
-            bot.error(req.body, error);
+        .catch(function (err) {
+            reject(err);
         });
 }
 
 const sendTransaction = function (eth, from, to, amount, gasPrice) {
-    if (!config.debug) {
-
-        eth.getTransactionCount(from, (err, nonce) => {
-            eth.sendTransaction({
-                from: from,
-                to: to,
-                gas: gas,
-                gasPrice: gasPrice,
-                value: amount,
-                nonce,
-            }, (err, txID) => {
-                if (err) {
-                    bot.error(req.body, err)
-                    return res.status(500).json(err)
-                }
-                else {
-                    bot.logTransaction(txID, from, to, amount, gasPrice);
-                    res.json({ txID })
-                }
+    return new Promise((resolve, reject) => {
+        if (config.debug) {
+            let txID = -1;
+            bot.logTransaction(txID, from, to, amount, gasPrice);
+            resolve();
+        } else {
+            eth.getTransactionCount(from, (err, nonce) => {
+                eth.sendTransaction({
+                    from: from,
+                    to: to,
+                    gas: gas,
+                    gasPrice: gasPrice,
+                    value: amount,
+                    nonce,
+                }, (err, txID) => {
+                    if (!err) {
+                        bot.logTransaction(txID, from, to, amount, gasPrice);
+                        resolve();
+                    } else {
+                        reject(err);
+                    }
+                });
             });
-        });
-    } else {
-        let txID = -1;
-        bot.logTransaction(txID, from, to, amount, gasPrice);
-    }
+        }
+    });
 }
 
 const port = process.env.PORT || 8181
