@@ -29,5 +29,8 @@ module.exports = {
     delayInMiliSeconds: 0,
     
     // Bounty Labels for the issues and the correspondent houres (e.g. {'bounty-xs': 3})
-    bountyLabels: {}
+    bountyLabels: {},
+
+    // username for the bot which has to comment for starting the process (e.g. status-bounty-)
+    githubUsername: ''
 }

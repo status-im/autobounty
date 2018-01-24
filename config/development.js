@@ -16,5 +16,6 @@ module.exports = {
     gasLimit: 92000,
     priceHour: 35,
     delayInMiliSeconds: 10000,
-    bountyLabels: BOUNTY_LABELS
+    bountyLabels: BOUNTY_LABELS,
+    githubUsername: 'jomsdev'
 }
