@@ -1,6 +1,8 @@
 "use strict"
 
 const https = require("https");
+const config = require("../config");
+
 
 const getGasPrice = function() {
     const url = 'https://ethgasstation.info/json/ethgasAPI.json';
@@ -11,7 +13,7 @@ const getGasPrice = function() {
         const request = lib.get(url, (response) => {
             // handle http errors
             if (response.statusCode < 200 || response.statusCode > 299) {
-                reject(new Error('Failed to load page, status code: ' + response.statusCode));
+                reject('Failed to load page, status code: ' + response.statusCode);
             }
             // temporary data holder
             const body = [];
@@ -26,11 +28,18 @@ const getGasPrice = function() {
             });
         });
         // handle connection errors of the request
-        request.on('error', (err) => reject(err))
+        request.on('error', (err) => reject(err));
     })
 };
 
+const getTokenPriceMock = function() {
+    return new Promise((resolve, reject) => resolve(0.35));
+}
+
 const getTokenPrice = function(token) {
+    if (config.debug) {
+        return getTokenPriceMock();
+    }
     const currency = 'USD'
     const url = 'https://min-api.cryptocompare.com/data/price?fsym=' + token + '&tsyms=' + currency;
     // return new pending promise
@@ -40,7 +49,7 @@ const getTokenPrice = function(token) {
         const request = lib.get(url, (response) => {
             // handle http errors
             if (response.statusCode < 200 || response.statusCode > 299) {
-                reject(new Error('Failed to load page, status code: ' + response.statusCode));
+                reject('Failed to load page, status code: ' + response.statusCode);
             }
             // temporary data holder
             const body = [];

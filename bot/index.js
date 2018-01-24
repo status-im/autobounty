@@ -5,82 +5,109 @@ const github = require('./github');
 
 
 const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: config.logPath + 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: config.logPath + 'info.log', level: 'info'}),
-    new winston.transports.File({ filename: config.logPath + 'combined.log' })
-  ]
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.File({ filename: config.logPath + 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: config.logPath + 'info.log', level: 'info' }),
+    ]
 });
 
 
-const needsFunding = function(req) {
+const needsFunding = function (req) {
     if (req.body.action !== 'created' || !req.body.hasOwnProperty('comment')) {
         return false
-    } else if (req.body.comment.user.login !== 'status-open-bounty') {
+    } else if (req.body.comment.user.login !== config.githubUsername) {
         return false
     }
     return true
 }
 
-const getAddress = function(req) {
+const getAddress = function (req) {
     let commentBody = req.body.comment.body;
-    return  commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
+    return commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
 }
 
-const getLabel = function(req) {
-    return github.getLabels(req).then(labels => {
-            if (labels.length === 1) {
-                return labels[0];
-            } else {
-                error(req.body, 'More than 1 label found: ['+ labels.length + ']');
-                // reject(new Error('More than 1 label found: ['+ labels.length + ']'));
-            }
-        }).catch(err => {
-            error(req.body, 'Could not get label' + err);
-            // reject(new Error('Could not get label' + err));
+const getLabelMock = function (req) {
+    return new Promise((resolve, reject) => {
+        github.getLabels(req)
+            .then(labels => {
+                let bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
+                if (bountyLabels.length === 1) {
+                    resolve(bountyLabels[0]);
+                } else {
+                    reject('Error getting bounty labels: ' + bountyLabels);
+                }
+            })
+            .catch((err) => {
+                reject(err)
+            });
     });
 }
 
-const getAmount = function(req) {
+const getLabel = function (req) {
+    if (config.debug) {
+        return getLabelMock(req);
+    }
     return new Promise((resolve, reject) => {
-        let labelPromise = getLabels(req);
+        github.getLabels(req)
+        .then(labels => {
+            let bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
+            if (bountyLabels.length === 1) {
+                resolve(bountyLabels[0]);
+            } else {
+                error(req.body, 'More than 1 label found: [' + labels.length + ']');
+                reject(new Error('More than 1 label found: ['+ labels.length + ']'));
+            }
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+const getAmountMock = function(req) {
+    return new Promise((resolve, reject) => {
+        resolve(10);
+    });
+
+}
+
+const getAmount = function (req) {
+    return new Promise((resolve, reject) => {
+        let labelPromise = getLabel(req);
         let tokenPricePromise = prices.getTokenPrice(config.token);
 
         Promise.all([labelPromise, tokenPricePromise])
-        .then(function(values) {
-            let label = values[0];
-            let tokenPrice = values[1];
-            let amountToPayDollar = config.priceHour * config.bountyLabels[label];
-            resolve(config.amountToPayDollar/tokenPrice);
-        })
-        .catch(err => {
-            error(req.body, 'Failed to resolve label or token price: ' + err);
-            reject(new Error('Failed to resolve label or token price: ' + err));
-        });
+            .then(function (values) {
+                let label = values[0];
+                let tokenPrice = values[1];
+                let amountToPayDollar = config.priceHour * config.bountyLabels[label];
+                resolve(amountToPayDollar / tokenPrice);
+            })
+            .catch((err) => {
+                reject(err);
+            });
     });
 }
 
 
 // Logging functions
 
-const logTransaction = function(txId, from, to, amount, gasPrice){
+const logTransaction = function (txId, from, to, amount, gasPrice) {
     logger.info("[OK] Succesfully funded bounty with transaction " + txId);
     logger.info(" * From: " + from);
     logger.info(" * To: " + to);
     logger.info(" * Amount: " + amount);
-    logger.info(" * Gas Price: " +  gasPrice);
+    logger.info(" * Gas Price: " + gasPrice);
     logger.info("====================================================");
 }
 
-const log = function(msg) {
+const log = function (msg) {
     logger.info(msg);
 }
 
-const error = function(requestInfo, errorMessage) {
+const error = function (errorMessage) {
     logger.error("[ERROR] Request processing failed: " + errorMessage);
-    logger.error("[ERROR] Request: " + requestInfo);
 }
 
 
