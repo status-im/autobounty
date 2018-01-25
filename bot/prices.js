@@ -24,7 +24,8 @@ const getGasPrice = function() {
                 // safeLowWait returns GWei (10^10 Wei).
                 let jsonBody = JSON.parse(body.join(''));
                 let gasPriceWei = parseInt(jsonBody['safeLowWait']) * Math.pow(10, 10);
-                resolve(gasPriceWei);
+                console.log('getGasPrice finishes')
+		resolve(gasPriceWei);
             });
         });
         // handle connection errors of the request

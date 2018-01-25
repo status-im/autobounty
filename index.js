@@ -28,19 +28,20 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
     } else if (!bot.needsFunding(req)) {
         return res.sendStatus(204);
     }
-
+    console.log('new req to process:' + req.body);
     setTimeout(() => {
         processRequest(req)
             .then(() => {
-                return res.sendStatus(200);
-            })
+                console.log('Well funded');
+	    })
             .catch((err) => {
                 bot.error('Error funding issue: ' + req.body.issue.url);
                 bot.error('error: ' + err);
                 bot.error('dump: ' + req);
-                return res.sendStatus(204);
             });
     }, config.delayInMiliSeconds);
+
+    return res.sendStatus(200);
 });
 
 const processRequest = function (req) {
@@ -51,30 +52,33 @@ const processRequest = function (req) {
     // Asynchronous requests for Gas Price and Amount
     const amountPromise = bot.getAmount(req);
     const gasPricePromise = bot.getGasPrice();
+    console.log('processingRequest...');
+    return new Promise((resolve, reject) => {
+	Promise.all([amountPromise, gasPricePromise])
+            .then(function (results) {
+                let amount = results[0];
+                let gasPrice = results[1];
+                let transaction = sendTransaction(eth, from, to, amount, gasPrice);
 
-    Promise.all([amountPromise, gasPricePromise])
-        .then(function (results) {
-            let amount = results[0];
-            let gasPrice = results[1];
-            let transaction = sendTransaction(eth, from, to, amount, gasPrice);
+                transaction
+                    .then(function () {
+                        resolve();
+                    })
+                    .catch(function (err) {
+                        reject(err);
+                    });
 
-            transaction
-                .then(function () {
-                    return res.sendStatus(200);
-                })
-                .catch(function (err) {
-                    reject(err);
-                });
-
-        })
-        .catch(function (err) {
-            reject(err);
+            })
+            .catch(function (err) {
+                reject(err);
+            });
         });
 }
 
 const sendTransaction = function (eth, from, to, amount, gasPrice) {
+    console.log('sending transaction...');
     return new Promise((resolve, reject) => {
-        if (config.debug) {
+        if (!config.realTransaction) {
             let txID = -1;
             bot.logTransaction(txID, from, to, amount, gasPrice);
             resolve();

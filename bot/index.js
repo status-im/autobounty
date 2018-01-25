@@ -10,6 +10,7 @@ const logger = winston.createLogger({
     transports: [
         new winston.transports.File({ filename: config.logPath + 'error.log', level: 'error' }),
         new winston.transports.File({ filename: config.logPath + 'info.log', level: 'info' }),
+	new winston.transports.File({ filename: 'combined.log' })
     ]
 });
 
@@ -19,8 +20,22 @@ const needsFunding = function (req) {
         return false
     } else if (req.body.comment.user.login !== config.githubUsername) {
         return false
+    } else if (!hasAddress(req)) {
+	console.log('does not have address');
+        return false;
     }
     return true
+}
+
+const hasAddress = function(req) {
+    let commentBody = req.body.comment.body;
+    console.log(commentBody);
+    console.log(commentBody.search('Contract address:'));
+    if (commentBody.search('Contract address:') === -1) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 const getAddress = function (req) {
@@ -49,12 +64,14 @@ const getLabel = function (req) {
     if (config.debug) {
         return getLabelMock(req);
     }
+    console.log('starting getLabel...');
     return new Promise((resolve, reject) => {
         github.getLabels(req)
         .then(labels => {
             let bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
             if (bountyLabels.length === 1) {
-                resolve(bountyLabels[0]);
+                console.log('getLabel promise finishes');
+		resolve(bountyLabels[0]);
             } else {
                 error(req.body, 'More than 1 label found: [' + labels.length + ']');
                 reject(new Error('More than 1 label found: ['+ labels.length + ']'));
@@ -82,6 +99,7 @@ const getAmount = function (req) {
                 let label = values[0];
                 let tokenPrice = values[1];
                 let amountToPayDollar = config.priceHour * config.bountyLabels[label];
+                console.log('getAmount finishes');
                 resolve(amountToPayDollar / tokenPrice);
             })
             .catch((err) => {

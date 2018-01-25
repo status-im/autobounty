@@ -32,5 +32,8 @@ module.exports = {
     bountyLabels: {},
 
     // username for the bot which has to comment for starting the process (e.g. status-bounty-)
-    githubUsername: ''
+    githubUsername: '',
+
+    // Activate real transactions
+    realTransaction: false
 }
