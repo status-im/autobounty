@@ -99,3 +99,4 @@ docker run -p 8080:8080 autobounty
 * Bot always **aborts on error** and logs the cause of the error on the file *${LOG_PATH}/error.log*. The aborted transaction must then be manually funded.
 * **Only one token** can be specified on the configuration file variable *token*.
 * Autobounty bot assumes that the status-open-bounty will only post a single message. In case two messages are posted the issue would be **funded two times**.
+The ongoing requests are not recorded in any persistent data storage. If the machine crashes during a request processing the request will be lost.
