@@ -57,7 +57,7 @@ describe('Bot behavior', function () {
                     assert.equal(amount, expected_amount);
                     done();
                 })
-                .catch(() => {console.log('error'), done()});
+                .catch(() => { console.log('error'), done() });
         });
     });
 });
