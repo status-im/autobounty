@@ -3,6 +3,5 @@ FROM node:7-onbuild
 ENV PORT 8080
 EXPOSE 8080
 
-ENV NAME autobounty
-ENV STANDARD_BOUNTY 0.001
-ENV WEBHOOK_SECRET test
+# Set this variable to the name of your production config file (without the extension)
+ENV NODE_ENV development
