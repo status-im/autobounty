@@ -28,12 +28,11 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
     } else if (!bot.needsFunding(req)) {
         return res.sendStatus(204);
     }
-    console.log('new req to process:' + req.body);
     setTimeout(() => {
         processRequest(req)
             .then(() => {
-                console.log('Well funded');
-	    })
+                bot.info('issue well funded: ' + res.body.issue.url);
+            })
             .catch((err) => {
                 bot.error('Error funding issue: ' + req.body.issue.url);
                 bot.error('error: ' + err);
@@ -52,9 +51,8 @@ const processRequest = function (req) {
     // Asynchronous requests for Gas Price and Amount
     const amountPromise = bot.getAmount(req);
     const gasPricePromise = bot.getGasPrice();
-    console.log('processingRequest...');
     return new Promise((resolve, reject) => {
-	Promise.all([amountPromise, gasPricePromise])
+        Promise.all([amountPromise, gasPricePromise])
             .then(function (results) {
                 let amount = results[0];
                 let gasPrice = results[1];
@@ -72,11 +70,10 @@ const processRequest = function (req) {
             .catch(function (err) {
                 reject(err);
             });
-        });
+    });
 }
 
 const sendTransaction = function (eth, from, to, amount, gasPrice) {
-    console.log('sending transaction...');
     return new Promise((resolve, reject) => {
         if (!config.realTransaction) {
             let txID = -1;
