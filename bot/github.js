@@ -8,8 +8,6 @@ const config = require('../config');
 const getLabelsURL = function (req) {
     let url = req.body.issue.labels_url;
     // Make the URL generic removing the name of the label
-    console.log(url);
-    console.log('clean url' + url.replace('{name}', ''));
     return url.replace('{/name}', '');
 }
 
@@ -20,19 +18,15 @@ const getLabelsMock = function (req) {
 
 // Returns all the bounty labelNames of a given issue (Github API v3)
 const getLabels = function (req) {
-    console.log('starting getLabels from github...');
     if (config.debug) {
         return getLabelsMock(req);
     } else {
-        console.log('getting path for asking labels...');
         let path = getLabelsURL(req).replace('https://api.github.com', '');
-        console.log('path: ' + path);
         const options = {
             hostname: 'api.github.com',
             path: path,
             headers: { 'User-Agent': 'kafkasl' }
         };
-        console.log('Github url: ' + options.hostname+path)
         return new Promise((resolve, reject) => {
             const request = https.get(options, (response) => {
                 // handle http errors

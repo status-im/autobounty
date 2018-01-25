@@ -4,7 +4,7 @@ const https = require("https");
 const config = require("../config");
 
 
-const getGasPrice = function() {
+const getGasPrice = function () {
     const url = 'https://ethgasstation.info/json/ethgasAPI.json';
     // return new pending promise
     return new Promise((resolve, reject) => {
@@ -24,8 +24,7 @@ const getGasPrice = function() {
                 // safeLowWait returns GWei (10^10 Wei).
                 let jsonBody = JSON.parse(body.join(''));
                 let gasPriceWei = parseInt(jsonBody['safeLowWait']) * Math.pow(10, 10);
-                console.log('getGasPrice finishes')
-		resolve(gasPriceWei);
+                resolve(gasPriceWei);
             });
         });
         // handle connection errors of the request
@@ -33,11 +32,11 @@ const getGasPrice = function() {
     })
 };
 
-const getTokenPriceMock = function() {
+const getTokenPriceMock = function () {
     return new Promise((resolve, reject) => resolve(0.35));
 }
 
-const getTokenPrice = function(token) {
+const getTokenPrice = function (token) {
     if (config.debug) {
         return getTokenPriceMock();
     }
@@ -70,5 +69,5 @@ const getTokenPrice = function(token) {
 
 module.exports = {
     getGasPrice: getGasPrice,
-    getTokenPrice : getTokenPrice
+    getTokenPrice: getTokenPrice
 }
