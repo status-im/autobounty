@@ -10,6 +10,8 @@
 
 const config = require('./config');
 const bot = require('./bot');
+const crypto = require('crypto');
+
 
 var express = require('express'),
     cors = require('cors'),
@@ -23,27 +25,75 @@ app.use(helmet());
 
 // Receive a POST request at the url specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
+    console.log("Request received");
+
     if (!req.body || !req.body.action) {
+        console.log("No body or action");
         return res.sendStatus(400);
     } else if (!bot.needsFunding(req)) {
+        console.log("No needed funding");
         return res.sendStatus(204);
     }
-    setTimeout(() => {
-        processRequest(req)
-            .then(() => {
-                bot.info('issue well funded: ' + res.body.issue.url);
-            })
-            .catch((err) => {
-                bot.error('Error funding issue: ' + req.body.issue.url);
-                bot.error('error: ' + err);
-                bot.error('dump: ' + req);
-            });
-    }, config.delayInMiliSeconds);
+    console.log("Calling validation");
 
+    validation = validateRequest(req);
+
+    if (validation.correct) {
+
+        setTimeout(() => {
+            processRequest(req)
+                .then(() => {
+                    bot.info('issue well funded: ' + res.body.issue.url);
+                })
+                .catch((err) => {
+                    bot.error('Error funding issue: ' + req.body.issue.url);
+                    bot.error('error: ' + err);
+                    bot.error('dump: ' + req);
+                });
+        }, config.delayInMiliSeconds);
+
+    } else {
+        bot.error('Error funding issue: ' + req.body.issue.url);
+        bot.error('error: ' + validation.error);
+    }
     return res.sendStatus(200);
 });
 
+const validateRequest = function (req) {
+    console.log("Validating request...");
+    validation = {correct: false, error: ''};
+    webhookSecret = process.env.WEBHOOK_SECRET;
+
+    if(!webhookSecret) {
+        validation.error = 'Github Webhook Secret key not found. ' +
+        'Please set env variable WEBHOOK_SECRET to github\'s webhook secret value';
+    } else {
+
+
+    const blob = JSON.stringify(req.body);
+        const hmac = crypto.createHmac('sha1', webhookSecret);
+        const ourSignature = `sha1=${hmac.update(blob).digest('hex')}`;
+
+        const theirSignature = req.get('X-Hub-Signature');
+
+        const bufferA = Buffer.from(ourSignature, 'utf8');
+        const bufferB = Buffer.from(theirSignature, 'utf8');
+
+        const safe = crypto.timingSafeEqual(bufferA, bufferB);
+
+        if (safe) {
+            validation.correct = true;
+        } else {
+            validation.error = 'Invalid signature. Check that WEBHOOK_SECRET ' +
+            'env variable matches github\'s webhook secret value';
+        }
+    }
+
+    return validation;
+}
+
 const processRequest = function (req) {
+
     const eth = bot.eth;
     const from = config.sourceAddress;
     const to = bot.getAddress(req);

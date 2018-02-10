@@ -31,39 +31,42 @@ All issues tagged with **[bounty](https://github.com/status-im/status-react/issu
 
 Autobounty is build using docker. Before building the image, you need to set up a configuration as follows:
 
-The [config]() folder contains the files for configuring the bot. The description for the variables can be found in *default.js*. Create a production config file (e.g. *production.js*) uing the {default,development}.js as template to override the default ones. **Remeber** to set the environment variable *NODE_ENV* in the dockerfile (e.g. `ENV NODE_ENV production`). 
+The [config]() folder contains the files for configuring the bot. The description for the variables can be found in *default.js*. Create a production config file (e.g. *production.js*) uing the {default,development}.js as template to override the default ones.
+
+**Remeber** to set the environment variable *NODE_ENV* in the dockerfile (e.g. `ENV NODE_ENV production`) and *WEBHOOK_SECRET* to the value specified in the secret field during the webhook creation (e.g. for random creation *ruby -rsecurerandom -e 'puts SecureRandom.hex(20)'*).
+)
 
 
 ```javascript
     // Debug mode for testing the bot
     debug: true,
-    
+
     // URL where the bot is listening (e.g. '/funding')
     urlEndpoint: '',
-    
-    // Path for the log files inside the docker image (e.g. './log/'), 
-    remember to create the folder inside the docker workspace if you change it 
+
+    // Path for the log files inside the docker image (e.g. './log/'),
+    remember to create the folder inside the docker workspace if you change it
     (the folde will be copied to the docker image during the build)
     logPath: '',
-    
+
     // URL for the signer (e.g. 'https://ropsten.infura.io')
     signerPath: '',
-    
-    // Address with the funding for the bounties 
+
+    // Address with the funding for the bounties
     sourceAddress: '',
-    
+
     // Token of the currency for fetching real time prices (e.g. 'SNT')
     token: '',
-    
+
     // Limit for the gas used in a transaction (e.g. 92000)
     gasLimit: 0,
-    
+
     // Price per hour you will pay in dolars (e.g. 35)
     priceHour: 0,
-    
+
     // Delay before funding a bounty (e.g. 3600000)
     delayInMiliSeconds: 0,
-    
+
     // Bounty Labels for the issues and the correspondent houres (e.g. {'bounty-xs': 3})
     bountyLabels: {},
 
@@ -80,12 +83,12 @@ Create a github webhook with the following information:
 
 * Payoload URL: IP_HOST/URL_ENDPOINT
 * Content Type: application/json
-* Secret: blank
+* Secret: the value you set for environment variable WEBHOOK_SECRET.
 * Configure the webhook to be triggered by comments in issues selecting the Issue Comment box in 'Let me select individual events'
 
 Where *IP_HOST* is the ip of the machine running the docker image and *URL_ENDPOINT* is the configuration variable with the same name in your custom config file.
 
-#### Build 
+#### Build
 
 To build and run the docker image issue the following commands:
 
