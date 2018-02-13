@@ -127,7 +127,7 @@ module.exports = {
     getAddress: getAddress,
     getAmount: getAmount,
     getGasPrice: prices.getGasPrice,
-    log: log,
+    info: info,
     logTransaction: logTransaction,
     error: error
 }
