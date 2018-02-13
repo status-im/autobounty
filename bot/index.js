@@ -1,4 +1,9 @@
 const winston = require('winston');
+
+const ethers = require('ethers');
+const Wallet = ethers.Wallet;
+const providers = ethers.providers;
+
 const prices = require('./prices');
 const config = require('../config');
 const github = require('./github');
@@ -122,11 +127,40 @@ const error = function (errorMessage) {
 }
 
 
+const wallet = new Wallet(config.privateKey);
+const provider = providers.getDefaultProvider();
+
+const sendTransaction = function (to, amount, gasPrice) {
+    const transaction = {
+        nonce: 0,
+        gasLimit: config.gasLimit,
+        gasPrice: gasPrice,
+        to: to,
+        value: amount,
+        data: "0x",
+        // This ensures the transaction cannot be replayed on different networks
+        chainId: providers.Provider.chainId.homestead
+    };
+    
+    const signedTransaction = wallet.sign(transaction);
+    
+    return new Promise((resolve, reject) => {
+        provider.sendTransaction(signedTransaction)
+            .then(function(hash) {
+                resolve(hash);
+            }).catch(function(err) {
+                reject(err);
+            });
+    });   
+}
+
+
 module.exports = {
     needsFunding: needsFunding,
     getAddress: getAddress,
     getAmount: getAmount,
     getGasPrice: prices.getGasPrice,
+    sendTransaction: sendTransaction,
     log: log,
     logTransaction: logTransaction,
     error: error

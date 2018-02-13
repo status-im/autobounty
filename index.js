@@ -44,7 +44,7 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
 });
 
 const processRequest = function (req) {
-    const eth = bot.eth;
+    const wallet = bot.wallet;
     const from = config.sourceAddress;
     const to = bot.getAddress(req);
 
@@ -56,9 +56,8 @@ const processRequest = function (req) {
             .then(function (results) {
                 let amount = results[0];
                 let gasPrice = results[1];
-                let transaction = sendTransaction(eth, from, to, amount, gasPrice);
 
-                transaction
+                bot.sendTransaction(to, amount, gasPrice)
                     .then(function () {
                         resolve();
                     })
@@ -70,34 +69,6 @@ const processRequest = function (req) {
             .catch(function (err) {
                 reject(err);
             });
-    });
-}
-
-const sendTransaction = function (eth, from, to, amount, gasPrice) {
-    return new Promise((resolve, reject) => {
-        if (!config.realTransaction) {
-            let txID = -1;
-            bot.logTransaction(txID, from, to, amount, gasPrice);
-            resolve();
-        } else {
-            eth.getTransactionCount(from, (err, nonce) => {
-                eth.sendTransaction({
-                    from: from,
-                    to: to,
-                    gas: gas,
-                    gasPrice: gasPrice,
-                    value: amount,
-                    nonce,
-                }, (err, txID) => {
-                    if (!err) {
-                        bot.logTransaction(txID, from, to, amount, gasPrice);
-                        resolve();
-                    } else {
-                        reject(err);
-                    }
-                });
-            });
-        }
     });
 }
 
