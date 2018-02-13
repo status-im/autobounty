@@ -43,17 +43,17 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
         setTimeout(() => {
             processRequest(req)
                 .then(() => {
-                    bot.info('issue well funded: ' + res.body.issue.url);
+                    bot.info('issue well funded: ' + req.body.issue.url);
                 })
                 .catch((err) => {
-                    bot.error('Error funding issue: ' + req.body.issue.url);
+                    bot.error('Error processing request: ' + req.body.issue.url);
                     bot.error('error: ' + err);
-                    bot.error('dump: ' + req);
+                    bot.error('dump: ' + req.body);
                 });
         }, config.delayInMiliSeconds);
 
     } else {
-        bot.error('Error funding issue: ' + req.body.issue.url);
+        bot.error('Error validating issue: ' + req.body.issue.url);
         bot.error('error: ' + validation.error);
     }
     return res.sendStatus(200);
@@ -69,8 +69,7 @@ const validateRequest = function (req) {
         'Please set env variable WEBHOOK_SECRET to github\'s webhook secret value';
     } else {
 
-
-    const blob = JSON.stringify(req.body);
+        const blob = JSON.stringify(req.body);
         const hmac = crypto.createHmac('sha1', webhookSecret);
         const ourSignature = `sha1=${hmac.update(blob).digest('hex')}`;
 
@@ -153,5 +152,5 @@ const sendTransaction = function (eth, from, to, amount, gasPrice) {
 
 const port = process.env.PORT || 8181
 app.listen(port, function () {
-    bot.log('Autobounty listening on port', port);
+    bot.info('Autobounty listening on port', port);
 });

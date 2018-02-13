@@ -113,7 +113,7 @@ const logTransaction = function (txId, from, to, amount, gasPrice) {
     logger.info("====================================================");
 }
 
-const log = function (msg) {
+const info = function (msg) {
     logger.info(msg);
 }
 
