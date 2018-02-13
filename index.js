@@ -25,16 +25,12 @@ app.use(helmet());
 
 // Receive a POST request at the url specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
-    console.log("Request received");
 
     if (!req.body || !req.body.action) {
-        console.log("No body or action");
         return res.sendStatus(400);
     } else if (!bot.needsFunding(req)) {
-        console.log("No needed funding");
         return res.sendStatus(204);
     }
-    console.log("Calling validation");
 
     validation = validateRequest(req);
 
@@ -60,7 +56,6 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
 });
 
 const validateRequest = function (req) {
-    console.log("Validating request...");
     validation = {correct: false, error: ''};
     webhookSecret = process.env.WEBHOOK_SECRET;
 
