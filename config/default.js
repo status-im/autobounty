@@ -16,6 +16,9 @@ module.exports = {
     // Address with the funding for the bounties
     sourceAddress: '',
 
+    // Private key for ether.js wallet
+    privateKey: '',
+
     // Token of the currency for fetching real time prices (e.g. 'SNT')
     token: '',
 
