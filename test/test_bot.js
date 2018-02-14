@@ -14,7 +14,7 @@ let requests = [
     { body: { action: 'created', comment: { body: 'Creating my first comment', user: { login: 'randomUser' } } } },
     { body: { action: 'edited', comment: { body: 'Editing my comment', user: { login: 'RandomUser' } } } },
     { body: { action: 'edited', comment: { body: sob_comment, user: { login: 'status-open-bounty' } } } },
-    { body: { action: 'created', issue: { labels: ['bounty', 'bounty-s'] }, comment: { body: sob_comment, user: { login: 'jomsdev' } } } }
+    { body: { action: 'created', issue: { labels: ['bounty', 'bounty-s'] }, comment: { body: sob_comment, user: { login: 'jomsdev' } } } },
 ];
 
 describe('Bot behavior', function () {
@@ -39,14 +39,7 @@ describe('Bot behavior', function () {
         });
     });
 
-    // TODO: test getAmount which involves calls to github and bounty tags
     describe('#getAmount', function () {
-        it('should fail and log that there is no bounty label for this issue', function () {
-            // Code
-        });
-        it('should fail and log that there are more than one bounty labels for this  issue', function () {
-            // Code
-        });
         it('should return the amount for the issue given the price per hour and the bounty label for this issue', (done) => {
             bot.getAmount(requests[3])
                 .then(function (amount) {
