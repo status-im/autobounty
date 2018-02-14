@@ -14,7 +14,7 @@ let requests = [
     { body: { action: 'created', comment: { body: 'Creating my first comment', user: { login: 'randomUser' } } } },
     { body: { action: 'edited', comment: { body: 'Editing my comment', user: { login: 'RandomUser' } } } },
     { body: { action: 'edited', comment: { body: sob_comment, user: { login: 'status-open-bounty' } } } },
-    { body: { action: 'created', issue: { labels: ['bounty', 'bounty-s'] }, comment: { body: sob_comment, user: { login: 'jomsdev' } } } },
+    { body: { action: 'created', issue: { labels: ['bounty', 'bounty-s'] }, comment: { body: sob_comment, user: { login: 'jomsdev' } } } }
 ];
 
 describe('Bot behavior', function () {
