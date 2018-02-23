@@ -7,9 +7,6 @@ module.exports = {
     // URL where the bot is listening (e.g. '/funding')
     urlEndpoint: '',
 
-    // Path for the log files inside the docker image (e.g. './log/'), remember to create the folder inside the docker workspace if you change it (the folde will be copied to the docker image during the build)
-    logPath: '',
-
     // URL for the signer (e.g. 'https://ropsten.infura.io')
     signerPath: '',
 
