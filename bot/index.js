@@ -118,7 +118,7 @@ const logTransaction = function (txId, from, to, amount, gasPrice) {
     logger.info("====================================================");
 }
 
-const log = function (msg) {
+const info = function (msg) {
     logger.info(msg);
 }
 
@@ -141,9 +141,9 @@ const sendTransaction = function (to, amount, gasPrice) {
         // This ensures the transaction cannot be replayed on different networks
         chainId: providers.Provider.chainId.homestead
     };
-    
+
     const signedTransaction = wallet.sign(transaction);
-    
+
     return new Promise((resolve, reject) => {
         provider.sendTransaction(signedTransaction)
             .then(function(hash) {
@@ -151,7 +151,7 @@ const sendTransaction = function (to, amount, gasPrice) {
             }).catch(function(err) {
                 reject(err);
             });
-    });   
+    });
 }
 
 
@@ -161,7 +161,7 @@ module.exports = {
     getAmount: getAmount,
     getGasPrice: prices.getGasPrice,
     sendTransaction: sendTransaction,
-    log: log,
+    info: info,
     logTransaction: logTransaction,
     error: error
 }
