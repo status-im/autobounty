@@ -109,12 +109,12 @@ const getAmount = function (req) {
 
 // Logging functions
 
-const logTransaction = function (txId, from, to, amount, gasPrice) {
-    logger.info("[OK] Succesfully funded bounty with transaction " + txId);
-    logger.info(" * From: " + from);
+const logTransaction = function (tx) {
+    logger.info("[OK] Succesfully funded bounty with transaction " + tx.hash);
+    logger.info(" * From: " + tx.from);
     logger.info(" * To: " + to);
     logger.info(" * Amount: " + amount);
-    logger.info(" * Gas Price: " + gasPrice);
+    logger.info(" * Gas Price: " + tx.gasPrice);
     logger.info("====================================================");
 }
 
@@ -141,7 +141,7 @@ const sendTransaction = function (to, amount, gasPrice) {
         gasLimit: config.gasLimit,
         gasPrice: gasPrice,
         to: to,
-        value: amount,
+        value: ethers.utils.parseEther(amount),
         // data: "0x",
         // This ensures the transaction cannot be replayed on different networks
         chainId: 3 // ropsten
