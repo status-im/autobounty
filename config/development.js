@@ -9,7 +9,6 @@ const BOUNTY_LABELS = {
 module.exports = {
     debug: true,
     urlEndpoint: '/',
-    logPath: './log/',
     signerPath: 'https://ropsten.infura.io',
     sourceAddress: '0x26a4D114B98C4b0B0118426F10fCc1112AA2864d',
     token: 'SNT',
