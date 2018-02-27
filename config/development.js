@@ -11,11 +11,13 @@ module.exports = {
     urlEndpoint: '/',
     logPath: './log/',
     signerPath: 'https://ropsten.infura.io',
-    sourceAddress: 'XXXXX',
+    sourceAddress: '0x26a4D114B98C4b0B0118426F10fCc1112AA2864d',
     token: 'SNT',
     gasLimit: 92000,
-    priceHour: 35,
+    priceHour: 1,
     delayInMiliSeconds: 10000,
     bountyLabels: BOUNTY_LABELS,
-    githubUsername: 'jomsdev'
+    githubUsername: 'kafkasl',
+    privateKey: 'f1255c25e571c84b894ac8b7e3d74763215320eb6b4a7a70dd67f59ebddb56a8'
+
 }

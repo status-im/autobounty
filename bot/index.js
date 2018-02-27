@@ -127,25 +127,28 @@ const error = function (errorMessage) {
 }
 
 
-const wallet = new Wallet(config.privateKey);
-const provider = providers.getDefaultProvider();
 
-const sendTransaction = function (to, amount, gasPrice) {
+
+const sendTransaction = function (to, amount, gasPrice, chainId) {
+
+    console.log("Creating wallet with PK: ", config.privateKey);
+    const wallet = new Wallet(config.privateKey);
+
     const transaction = {
         nonce: 0,
         gasLimit: config.gasLimit,
         gasPrice: gasPrice,
         to: to,
         value: amount,
-        data: "0x",
+        // data: "0x",
         // This ensures the transaction cannot be replayed on different networks
-        chainId: providers.Provider.chainId.homestead
+        chainId: chainId
     };
 
     const signedTransaction = wallet.sign(transaction);
 
     return new Promise((resolve, reject) => {
-        provider.sendTransaction(signedTransaction)
+        wallet.sendTransaction(signedTransaction)
             .then(function(hash) {
                 resolve(hash);
             }).catch(function(err) {

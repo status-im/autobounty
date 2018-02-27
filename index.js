@@ -87,12 +87,8 @@ const validateRequest = function (req) {
 }
 
 const processRequest = function (req) {
-<<<<<<< HEAD
-    const wallet = bot.wallet;
-=======
+    // const wallet = bot.wallet;
 
-    const eth = bot.eth;
->>>>>>> add_webhook_secret
     const from = config.sourceAddress;
     const to = bot.getAddress(req);
 
