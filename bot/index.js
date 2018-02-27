@@ -152,6 +152,7 @@ const sendTransaction = function (to, amount, gasPrice) {
     return new Promise((resolve, reject) => {
         wallet.sendTransaction(signedTransaction)
             .then(function(hash) {
+                logTransaction(hash, config.sourceAddress, to, amount, gasPrice);
                 resolve(hash);
             }).catch(function(err) {
                 reject(err);
