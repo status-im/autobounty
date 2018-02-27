@@ -132,19 +132,21 @@ const error = function (errorMessage) {
 
 const sendTransaction = function (to, amount, gasPrice) {
 
-    var chaind = providers.Provider.chainId.ropsten;
+    var chainId = providers.Provider.chainId.ropsten;
     var chainName = providers.networks.ropsten;
-    if (!config.debug) {
+
+    if (config.realTransaction) {
         chainId = providers.Provider.chainId.homestead;
         chainName = providers.networks.homestead;
     }
 
-    var wallet = new Wallet(config.privateKey);
+    const wallet = new Wallet(config.privateKey);
     const provider = ethers.providers.getDefaultProvider(chainName);
+
+    wallet.provider = provider;
 
 
     var transaction = {
-        nonce: 0,
         gasLimit: config.gasLimit,
         gasPrice: gasPrice,
         to: to,
@@ -152,10 +154,8 @@ const sendTransaction = function (to, amount, gasPrice) {
         chainId: chainId
     };
 
-    var signedTransaction = wallet.sign(transaction);
-
     return new Promise((resolve, reject) => {
-        wallet.provider.sendTransaction(signedTransaction)
+        wallet.sendTransaction(transaction)
             .then(function(hash) {
                 logTransaction(hash);
                 resolve(hash);
