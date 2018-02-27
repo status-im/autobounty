@@ -5,17 +5,23 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "chai": "^4.1.2",
     "cors": "^2.8.1",
+    "eslint": "^4.15.0",
     "ethjs-provider-signer": "^0.1.4",
     "ethjs-query": "^0.2.4",
     "ethjs-signer": "^0.1.1",
     "express": "^4.15.2",
-    "web3": "^0.18.2"
+    "helmet": "^3.9.0",
+    "lodash": "^4.17.4",
+    "mocha": "^5.0.0",
+    "web3": "^0.18.2",
+    "winston": "^3.0.0-rc1"
   }
 }
