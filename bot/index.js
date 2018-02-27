@@ -130,7 +130,7 @@ const error = function (errorMessage) {
 
 
 
-const sendTransaction = function (to, amount, gvar chainId = providers.Provider.chainId.ropsten;
+const sendTransaction = function (to, amount, gasPrice) {
 
     var chaind = providers.Provider.chainId.ropsten;
     var chainName = providers.networks.ropsten;
