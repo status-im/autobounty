@@ -3,6 +3,7 @@ const winston = require('winston');
 const ethers = require('ethers');
 const Wallet = ethers.Wallet;
 const providers = ethers.providers;
+const utils = ethers.utils;
 
 const prices = require('./prices');
 const config = require('../config');
@@ -112,8 +113,8 @@ const getAmount = function (req) {
 const logTransaction = function (tx) {
     logger.info("[OK] Succesfully funded bounty with transaction " + tx.hash);
     logger.info(" * From: " + tx.from);
-    logger.info(" * To: " + to);
-    logger.info(" * Amount: " + amount);
+    logger.info(" * To: " + tx.to);
+    logger.info(" * Amount: " + tx.value);
     logger.info(" * Gas Price: " + tx.gasPrice);
     logger.info("====================================================");
 }
@@ -129,30 +130,34 @@ const error = function (errorMessage) {
 
 
 
-const sendTransaction = function (to, amount, gasPrice) {
+const sendTransaction = function (to, amount, gvar chainId = providers.Provider.chainId.ropsten;
 
-    const wallet = new Wallet(config.privateKey);
-    if (config.debug){
-        wallet.provider = ethers.providers.getDefaultProvider('ropsten');
-    } else {
-        wallet.provider = ethers.providers.getDefaultProvider('metropolis');
+    var chaind = providers.Provider.chainId.ropsten;
+    var chainName = providers.networks.ropsten;
+    if (!config.debug) {
+        chainId = providers.Provider.chainId.homestead;
+        chainName = providers.networks.homestead;
     }
 
+    var wallet = new Wallet(config.privateKey);
+    const provider = ethers.providers.getDefaultProvider(chainName);
 
-    const transaction = {
+
+    var transaction = {
         nonce: 0,
         gasLimit: config.gasLimit,
         gasPrice: gasPrice,
         to: to,
         value: amount,
+        chainId: chainId
     };
 
-    const signedTransaction = wallet.sign(transaction);
+    var signedTransaction = wallet.sign(transaction);
 
     return new Promise((resolve, reject) => {
         wallet.provider.sendTransaction(signedTransaction)
             .then(function(hash) {
-                logTransaction(hash, config.sourceAddress, to, amount, gasPrice);
+                logTransaction(hash);
                 resolve(hash);
             }).catch(function(err) {
                 reject(err);
