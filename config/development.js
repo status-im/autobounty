@@ -16,7 +16,7 @@ module.exports = {
     priceHour: 1,
     delayInMiliSeconds: 10000,
     bountyLabels: BOUNTY_LABELS,
-    githubUsername: 'kafkasl',
+    githubUsername: 'jomsdev',
     privateKey: 'f1255c25e571c84b894ac8b7e3d74763215320eb6b4a7a70dd67f59ebddb56a8'
 
 }

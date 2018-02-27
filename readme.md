@@ -76,7 +76,7 @@ The [config]() folder contains the files for configuring the bot. The descriptio
 
 Create a github webhook with the following information:
 
-* Payoload URL: IP_HOST/URL_ENDPOINT
+* Payload URL: IP_HOST/URL_ENDPOINT
 * Content Type: application/json
 * Secret: the value you set for environment variable WEBHOOK_SECRET.
 * Configure the webhook to be triggered by comments in issues selecting the Issue Comment box in 'Let me select individual events'

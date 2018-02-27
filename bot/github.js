@@ -21,7 +21,7 @@ const getLabels = function (req) {
     if (config.debug) {
         return getLabelsMock(req);
     } else {
-        let path = getLabelsURL(req).replace('https://api.github.com', '');
+        const path = getLabelsURL(req).replace('https://api.github.com', '');
         const options = {
             hostname: 'api.github.com',
             path: path,
@@ -40,7 +40,7 @@ const getLabels = function (req) {
                 response.on('data', (chunk) => body.push(chunk));
                 // we are done, resolve promise with those joined chunks
                 response.on('end', () => {
-                    let labels = JSON.parse(body.join('')).map(labelObj => labelObj.name);
+                    const labels = JSON.parse(body.join('')).map(labelObj => labelObj.name);
                     resolve(labels);
                 });
             });

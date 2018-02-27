@@ -32,7 +32,7 @@ const needsFunding = function (req) {
 }
 
 const hasAddress = function (req) {
-    let commentBody = req.body.comment.body;
+    const commentBody = req.body.comment.body;
     if (commentBody.search('Contract address:') === -1) {
         return false;
     } else {
@@ -41,7 +41,7 @@ const hasAddress = function (req) {
 }
 
 const getAddress = function (req) {
-    let commentBody = req.body.comment.body;
+    const commentBody = req.body.comment.body;
     return commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
 }
 
@@ -49,7 +49,7 @@ const getLabelMock = function (req) {
     return new Promise((resolve, reject) => {
         github.getLabels(req)
             .then(labels => {
-                let bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
+                const bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
                 if (bountyLabels.length === 1) {
                     resolve(bountyLabels[0]);
                 } else {
@@ -69,7 +69,7 @@ const getLabel = function (req) {
     return new Promise((resolve, reject) => {
         github.getLabels(req)
             .then(labels => {
-                let bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
+                const bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
                 if (bountyLabels.length === 1) {
                     resolve(bountyLabels[0]);
                 } else {
@@ -90,8 +90,8 @@ const getAmountMock = function (req) {
 
 const getAmount = function (req) {
     return new Promise((resolve, reject) => {
-        let labelPromise = getLabel(req);
-        let tokenPricePromise = prices.getTokenPrice(config.token);
+        const labelPromise = getLabel(req);
+        const tokenPricePromise = prices.getTokenPrice(config.token);
 
         Promise.all([labelPromise, tokenPricePromise])
             .then(function (values) {
@@ -141,7 +141,7 @@ const sendTransaction = function (to, amount, gasPrice) {
         gasLimit: config.gasLimit,
         gasPrice: gasPrice,
         to: to,
-        value: ethers.utils.parseEther(amount),
+        value: amount,
         // data: "0x",
         // This ensures the transaction cannot be replayed on different networks
         chainId: 3 // ropsten
