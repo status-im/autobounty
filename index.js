@@ -43,14 +43,14 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
                 })
                 .catch((err) => {
                     bot.error('Error processing request: ' + req.body.issue.url);
-                    bot.error('error: ' + err);
-                    bot.error('dump: ' + req.body);
+                    bot.error('Error: ' + err);
+                    bot.error('Dump: ', req.body);
                 });
         }, config.delayInMiliSeconds);
 
     } else {
         bot.error('Error validating issue: ' + req.body.issue.url);
-        bot.error('error: ' + validation.error);
+        bot.error('Error: ' + validation.error);
     }
     return res.sendStatus(200);
 });

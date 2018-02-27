@@ -129,10 +129,12 @@ const error = function (errorMessage) {
 
 
 
-const sendTransaction = function (to, amount, gasPrice, chainId) {
+const sendTransaction = function (to, amount, gasPrice) {
 
     console.log("Creating wallet with PK: ", config.privateKey);
     const wallet = new Wallet(config.privateKey);
+    wallet.provider = ethers.providers.getDefaultProvider('ropsten');
+
 
     const transaction = {
         nonce: 0,
@@ -142,7 +144,7 @@ const sendTransaction = function (to, amount, gasPrice, chainId) {
         value: amount,
         // data: "0x",
         // This ensures the transaction cannot be replayed on different networks
-        chainId: chainId
+        chainId: 3 // ropsten
     };
 
     const signedTransaction = wallet.sign(transaction);
