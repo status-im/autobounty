@@ -17,6 +17,6 @@ module.exports = {
     priceHour: 1,
     delayInMiliSeconds: 10000,
     bountyLabels: BOUNTY_LABELS,
-    githubUsername: '',
+    githubUsername: 'status-open-bounty',
 
 }
