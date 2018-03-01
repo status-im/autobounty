@@ -25,7 +25,7 @@ const getLabels = function (req) {
         const options = {
             hostname: 'api.github.com',
             path: path,
-            headers: { 'User-Agent': 'kafkasl' }
+            headers: { 'User-Agent': config.githubUsername }
         };
         return new Promise((resolve, reject) => {
             const request = https.get(options, (response) => {
