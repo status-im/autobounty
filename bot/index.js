@@ -22,7 +22,7 @@ const logger = winston.createLogger({
 
 
 const needsFunding = function (req) {
-    if (req.body.action === 'edited' || !req.body.hasOwnProperty('comment')) {
+    if (req.body.action !== 'edited' || !req.body.hasOwnProperty('comment')) {
         return false
     } else if (req.body.comment.user.login !== config.githubUsername) {
         return false
@@ -43,7 +43,7 @@ const hasAddress = function (req) {
 
 const getAddress = function (req) {
     const commentBody = req.body.comment.body;
-    return commentBody.substring(commentBody.search("Contract address:") + 18, commentBody.search("Contract address:") + 60)
+    return commentBody.substring(commentBody.search("Contract address:") + 19, commentBody.search("Contract address:") + 61)
 }
 
 const getLabelMock = function (req) {

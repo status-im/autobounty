@@ -3,7 +3,6 @@
 * and in case it's a comment that has "@autobounty <decimal> <currency>"
 * awards that bounty to the address posted earlier in the thread (by the
 * commiteth bot).
-* TODO tests
 * REVIEW parsing, non-persisting storage of addresses, hardcoded string length.
 * Depends on commiteth version as of 2017-06-10.
 */
@@ -25,13 +24,12 @@ app.use(helmet());
 
 // Receive a POST request at the url specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
-
+    
     if (!req.body || !req.body.action) {
         return res.sendStatus(400);
     } else if (!bot.needsFunding(req)) {
         return res.sendStatus(204);
     }
-
     validation = validateRequest(req);
 
     if (validation.correct) {
