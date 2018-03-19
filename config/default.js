@@ -30,7 +30,7 @@ const ERC20_ABI = [
         "payable": false,
         "type": "function"
     }
-];
+]
 
 const TOKEN_CONTRACTS = {
     'STT': {

@@ -1,7 +1,7 @@
-const chai = require('chai');
-const expect = require('chai').expect;
-const assert = require('chai').assert;
-const should = require('chai').should;
+const chai = require('chai')
+const expect = require('chai').expect
+const assert = require('chai').assert
+const should = require('chai').should
 const config = require('../config')
 const bot = require('../bot')
 
@@ -15,42 +15,42 @@ let requests = [
     { body: { action: 'edited', comment: { body: 'Editing my comment', user: { login: 'RandomUser' } } } },
     { body: { action: 'edited', comment: { body: sob_comment, user: { login: 'status-open-bounty' } } } },
     { body: { action: 'created', issue: { labels: ['bounty', 'bounty-s'] }, comment: { body: sob_comment, user: { login: 'status-open-bounty' } } } }
-];
+]
 
 describe('Bot behavior', function () {
     describe('#needsFunding()', function () {
         it('should return false because the comment is not from status-open-bounty', function () {
-            assert.isFalse(bot.needsFunding(requests[0]));
-        });
+            assert.isFalse(bot.needsFunding(requests[0]))
+        })
         it('should return false because a user is editing a comment', function () {
-            assert.isFalse(bot.needsFunding(requests[1]));
-        });
+            assert.isFalse(bot.needsFunding(requests[1]))
+        })
         it('should return false because status-open-bounty edited a comment', function () {
-            assert.isFalse(bot.needsFunding(requests[2]));
-        });
+            assert.isFalse(bot.needsFunding(requests[2]))
+        })
         it('should return true, it is all right and we should fund', function () {
-            assert.isTrue(bot.needsFunding(requests[3]));
-        });
-    });
+            assert.isTrue(bot.needsFunding(requests[3]))
+        })
+    })
 
     describe('#getAddress', function () {
         it('should return the address from a status-open-bounty bot comment', function () {
-            assert.equal(bot.getAddress(requests[3]), '0x3645fe42b1a744ad98cc032c22472388806f86f9');
-        });
-    });
+            assert.equal(bot.getAddress(requests[3]), '0x3645fe42b1a744ad98cc032c22472388806f86f9')
+        })
+    })
 
     describe('#getAmount', function () {
         it('should return the amount for the issue given the price per hour and the bounty label for this issue', (done) => {
             bot.getAmount(requests[3])
                 .then(function (amount) {
-                    let label = 'bounty-s';
-                    let tokenPrice = 0.35;
-                    let priceInDollars = config.priceHour * config.bountyLabels[label];
-                    expected_amount = priceInDollars / tokenPrice;
-                    assert.equal(amount, expected_amount);
-                    done();
+                    let label = 'bounty-s'
+                    let tokenPrice = 0.35
+                    let priceInDollars = config.priceHour * config.bountyLabels[label]
+                    expected_amount = priceInDollars / tokenPrice
+                    assert.equal(amount, expected_amount)
+                    done()
                 })
-                .catch(() => { console.log('error'), done() });
-        });
-    });
-});
+                .catch(() => { console.log('error'), done() })
+        })
+    })
+})
