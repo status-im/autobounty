@@ -14,7 +14,7 @@
                 "debug"
             ],
             "env": {
-                "WEBHOOK_SECRET": "fa7689e3"
+                "WEBHOOK_SECRET": ""
             },
             "port": 9229
         },

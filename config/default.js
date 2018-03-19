@@ -7,6 +7,42 @@ const BOUNTY_LABELS = {
     'bounty-xl': 10000
 }
 
+const ERC20_ABI = [
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "_to",
+                "type": "address"
+            },
+            {
+                "name": "_amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transfer",
+        "outputs": [
+            {
+                "name": "success",
+                "type": "bool"
+            }
+        ],
+        "payable": false,
+        "type": "function"
+    }
+];
+
+const TOKEN_CONTRACTS = {
+    'STT': {
+        address: '0xc55cF4B03948D7EBc8b9E8BAD92643703811d162',
+        abi: ERC20_ABI
+    },
+    'SNT': {
+        address: '0x744d70fdbe2ba4cf95131626614a1763df805b9e',
+        abi: ERC20_ABI
+    }
+}
+
 module.exports = {
     // Debug mode for testing the bot
     debug: true,
@@ -37,6 +73,9 @@ module.exports = {
 
     // Bounty Labels for the issues and the correspondent hours (e.g. {'bounty-xs': 3})
     bountyLabels: BOUNTY_LABELS,
+
+    // Contract info for the different supported tokens
+    tokenContracts: TOKEN_CONTRACTS,
 
     // username for the bot which has to comment for starting the process (e.g. status-bounty-)
     githubUsername: 'status-open-bounty',
