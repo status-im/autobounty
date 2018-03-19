@@ -22,8 +22,8 @@ const getGasPrice = function () {
             // we are done, resolve promise with those joined chunks
             response.on('end', () => {
                 // safeLowWait returns GWei (10^10 Wei).
-                let jsonBody = JSON.parse(body.join(''))
-                let gasPriceWei = parseInt(jsonBody['safeLowWait']) * Math.pow(10, 10)
+                const jsonBody = JSON.parse(body.join(''))
+                const gasPriceWei = parseInt(jsonBody['safeLowWait']) * Math.pow(10, 10)
                 resolve(gasPriceWei)
             })
         })
@@ -57,8 +57,8 @@ const getTokenPrice = function (token) {
             response.on('data', (chunk) => body.push(chunk))
             // we are done, resolve promise with those joined chunks
             response.on('end', () => {
-                let jsonBody = JSON.parse(body.join(''))
-                let tokenPrice = parseFloat(jsonBody[currency])
+                const jsonBody = JSON.parse(body.join(''))
+                const tokenPrice = parseFloat(jsonBody[currency])
                 resolve(tokenPrice)
             })
         })

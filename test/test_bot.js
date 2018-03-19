@@ -7,10 +7,10 @@ const bot = require('../bot')
 
 
 // status-open-bounty comment from https://github.com/status-im/autobounty/issues/1
-let sob_comment = 'Current balance: 0.000000 ETH\nTokens: SNT: 2500.00 ANT: 25.00\nContract address: 0x3645fe42b1a744ad98cc032c22472388806f86f9\nNetwork: Mainnet\n To claim this bounty sign up at https://openbounty.status.im and make sure to update your Ethereum address in My Payment Details so that the bounty is correctly allocated.\nTo fund it, send ETH or ERC20/ERC223 tokens to the contract address.'
+const sob_comment = 'Current balance: 0.000000 ETH\nTokens: SNT: 2500.00 ANT: 25.00\nContract address: 0x3645fe42b1a744ad98cc032c22472388806f86f9\nNetwork: Mainnet\n To claim this bounty sign up at https://openbounty.status.im and make sure to update your Ethereum address in My Payment Details so that the bounty is correctly allocated.\nTo fund it, send ETH or ERC20/ERC223 tokens to the contract address.'
 
 // Fake requests
-let requests = [
+const requests = [
     { body: { action: 'created', comment: { body: 'Creating my first comment', user: { login: 'randomUser' } } } },
     { body: { action: 'edited', comment: { body: 'Editing my comment', user: { login: 'RandomUser' } } } },
     { body: { action: 'edited', comment: { body: sob_comment, user: { login: 'status-open-bounty' } } } },
@@ -43,9 +43,9 @@ describe('Bot behavior', function () {
         it('should return the amount for the issue given the price per hour and the bounty label for this issue', (done) => {
             bot.getAmount(requests[3])
                 .then(function (amount) {
-                    let label = 'bounty-s'
-                    let tokenPrice = 0.35
-                    let priceInDollars = config.priceHour * config.bountyLabels[label]
+                    const label = 'bounty-s'
+                    const tokenPrice = 0.35
+                    const priceInDollars = config.priceHour * config.bountyLabels[label]
                     expected_amount = priceInDollars / tokenPrice
                     assert.equal(amount, expected_amount)
                     done()

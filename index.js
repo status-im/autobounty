@@ -12,12 +12,12 @@ const bot = require('./bot')
 const crypto = require('crypto')
 
 
-var express = require('express'),
-    cors = require('cors'),
-    helmet = require('helmet'),
-    app = express(),
-    bodyParser = require('body-parser'),
-    jsonParser = bodyParser.json()
+const express = require('express'),
+      cors = require('cors'),
+      helmet = require('helmet'),
+      app = express(),
+      bodyParser = require('body-parser'),
+      jsonParser = bodyParser.json()
 
 app.use(cors())
 app.use(helmet())

@@ -79,9 +79,9 @@ const getAmount = function (req) {
 
         Promise.all([labelPromise, tokenPricePromise])
             .then(function (values) {
-                let label = values[0]
-                let tokenPrice = values[1]
-                let amountToPayDollar = config.priceHour * config.bountyLabels[label.name]
+                const label = values[0]
+                const tokenPrice = values[1]
+                const amountToPayDollar = config.priceHour * config.bountyLabels[label.name]
                 resolve(amountToPayDollar / tokenPrice)
             })
             .catch((err) => {
@@ -112,8 +112,8 @@ const error = function (errorMessage) {
 
 
 const sendTransaction = async function (to, amount, gasPrice) {
-    var chainId = providers.Provider.chainId.ropsten
-    var chainName = providers.networks.ropsten
+    let chainId = providers.Provider.chainId.ropsten
+    let chainName = providers.networks.ropsten
 
     if (config.realTransaction) {
         chainId = providers.Provider.chainId.homestead
