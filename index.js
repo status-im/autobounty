@@ -22,6 +22,8 @@ app.use(helmet())
 
 // Receive a POST request at the url specified by an env. var.
 app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
+  bot.info(`Handling ${req.body.issue.url}`)
+
   if (!req.body || !req.body.action) {
     return res.sendStatus(400)
   } else if (!bot.needsFunding(req)) {

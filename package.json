@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@octokit/rest": "^15.2.5",
+    "axios": "^0.18.0",
     "body-parser": "^1.17.2",
     "cors": "^2.8.1",
     "ethers": "^3.0",
@@ -21,7 +22,6 @@
     "express": "^4.15.2",
     "helmet": "^3.9.0",
     "lodash": "^4.17.4",
-    "web3": "^0.18.2",
     "winston": "^3.0.0-rc3"
   },
   "devDependencies": {
