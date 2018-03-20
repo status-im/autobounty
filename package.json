@@ -13,15 +13,15 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "cors": "^2.8.1",
-    "ethers": "^2.2.6",
-    "ethjs-provider-signer": "^0.1.4",
-    "ethjs-query": "^0.2.4",
-    "ethjs-signer": "^0.1.1",
+    "ethers": "^3.0",
+    "ethjs-provider-signer": "^0.1",
+    "ethjs-query": "^0.2",
+    "ethjs-signer": "^0.1",
     "express": "^4.15.2",
     "helmet": "^3.9.0",
     "lodash": "^4.17.4",
     "web3": "^0.18.2",
-    "winston": "^3.0.0-rc1"
+    "winston": "^3.0.0-rc3"
   },
   "devDependencies": {
     "chai": "^4.1.2",
