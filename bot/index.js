@@ -1,183 +1,175 @@
-const winston = require('winston');
+const winston = require('winston')
 
-const ethers = require('ethers');
-const Wallet = ethers.Wallet;
-const Contract = ethers.Contract;
-const providers = ethers.providers;
-const utils = ethers.utils;
+const ethers = require('ethers')
+const { Wallet, Contract, providers } = ethers
 
-const prices = require('./prices');
-const config = require('../config');
-const github = require('./github');
+const config = require('../config')
+const prices = require('./prices')
+const github = require('./github')
 
-const contractAddressString = 'Contract address:';
-
+const contractAddressString = 'Contract address:'
 
 const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    transports: [
-        new winston.transports.File({ filename: './log/error.log', level: 'error' }),
-        new winston.transports.File({ filename: './log/info.log', level: 'info' }),
-        // new winston.transports.File({ filename: './log/combined.log' })
-    ]
-});
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: './log/error.log', level: 'error' }),
+    new winston.transports.File({ filename: './log/info.log', level: 'info' }),
+    new winston.transports.Console({
+      format: winston.format.simple(),
+      level: 'debug',
+      colorize: true,
+      stderrLevels: ['error', 'debug', 'info'],
+      silent: process.env.NODE_ENV === 'production'
+    })
+  ]
+})
 
-
-const needsFunding = function (req) {
-    if (req.body.action !== 'edited' || !req.body.hasOwnProperty('comment')) {
-        return false
-    } else if (req.body.comment.user.login !== config.githubUsername) {
-        return false
-    } else if (!hasAddress(req)) {
-        return false;
-    }
-    return true
+function needsFunding (req) {
+  if (req.body.action !== 'edited' || !req.body.hasOwnProperty('comment')) {
+    return false
+  } else if (req.body.comment.user.login !== config.githubUsername) {
+    return false
+  } else if (!hasAddress(req)) {
+    return false
+  }
+  return true
 }
 
-const hasAddress = function (req) {
-    const commentBody = req.body.comment.body;
-    if (commentBody.search(contractAddressString) === -1) {
-        return false;
-    } else {
-        return true;
-    }
+function hasAddress (req) {
+  return req.body.comment.body.search(contractAddressString) !== -1
 }
 
-const getAddress = function (req) {
-    const commentBody = req.body.comment.body;
-    const index = commentBody.search(contractAddressString) + 19
-    return commentBody.substring(index, index + 42)
+function getAddress (req) {
+  const commentBody = req.body.comment.body
+  const index = commentBody.search(contractAddressString) + 19
+  return commentBody.substring(index, index + 42)
 }
 
-const getLabel = function (req) {
-    return new Promise((resolve, reject) => {
-        github.getLabels(req)
-            .then(labels => {
-                const bountyLabels = labels.filter(label => config.bountyLabels.hasOwnProperty(label.name));
-                if (bountyLabels.length === 1) {
-                    resolve(bountyLabels[0]);
-                } else {
-                    reject('Error getting bounty labels');
-                }
-            }).catch(err => {
-                reject(err);
-            });
-    });
+async function getLabel (req) {
+  const labelNames = await github.getLabels(req)
+  const bountyLabels = labelNames.filter(labelName => config.bountyLabels.hasOwnProperty(labelName))
+  if (bountyLabels.length === 1) {
+    return bountyLabels[0]
+  }
+
+  throw new Error('Error getting bounty labels')
 }
 
-const getAmountMock = function (req) {
-    return new Promise((resolve, reject) => {
-        resolve(10);
-    });
+async function getAmount (req) {
+  const labelName = await getLabel(req)
+  const tokenPrice = await prices.getTokenPrice(config.token)
+
+  const bountyLabelHours = config.bountyLabels[labelName]
+  if (!bountyLabelHours) {
+    throw new Error(`Label '${labelName}' not found in config`)
+  }
+  const amountToPayDollar = config.priceHour * bountyLabelHours
+  return (amountToPayDollar / tokenPrice)
 }
-
-const getAmount = function (req) {
-    return new Promise((resolve, reject) => {
-        const labelPromise = getLabel(req);
-        const tokenPricePromise = prices.getTokenPrice(config.token);
-
-        Promise.all([labelPromise, tokenPricePromise])
-            .then(function (values) {
-                let label = values[0];
-                let tokenPrice = values[1];
-                let amountToPayDollar = config.priceHour * config.bountyLabels[label.name];
-                resolve(amountToPayDollar / tokenPrice);
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
-}
-
 
 // Logging functions
 
-const logTransaction = function (tx) {
-    logger.info("[OK] Succesfully funded bounty with transaction " + tx.hash);
-    logger.info(" * From: " + tx.from);
-    logger.info(" * To: " + tx.to);
-    logger.info(" * Amount: " + tx.value);
-    logger.info(" * Gas Price: " + tx.gasPrice);
-    logger.info("====================================================");
+function logTransaction (tx) {
+  info(`[OK] Succesfully funded bounty with transaction ${tx.hash}`)
+  info(` * From: ${tx.from}`)
+  info(` * To: ${tx.to}`)
+  info(` * Amount: ${tx.value}`)
+  info(` * Gas Price: ${tx.gasPrice}`)
+  info(`====================================================`)
 }
 
-const info = function (msg) {
-    logger.info(msg);
+function info (msg) {
+  logger.info(msg)
 }
 
-const error = function (errorMessage) {
-    logger.error("[ERROR] Request processing failed: " + errorMessage);
+function error (errorMessage) {
+  logger.error(`[ERROR] Request processing failed: ${errorMessage}`)
 }
 
+async function sendTransaction (to, amount, gasPrice) {
+  if (isNaN(amount)) {
+    throw Error('Invalid amount')
+  }
+  if (!config.privateKey.startsWith('0x')) {
+    throw Error('Private key should start with 0x')
+  }
 
-const sendTransaction = async function (to, amount, gasPrice) {
-    var chainId = providers.Provider.chainId.ropsten;
-    var chainName = providers.networks.ropsten;
+  let transaction = null
+  let hash = null
 
-    if (config.realTransaction) {
-        chainId = providers.Provider.chainId.homestead;
-        chainName = providers.networks.homestead;
+  const network = providers.Provider.getNetwork(config.realTransaction ? 'homestead' : 'ropsten')
+  const wallet = new Wallet(config.privateKey)
+  wallet.provider = ethers.providers.getDefaultProvider(network)
+
+  async function customSendTransaction (tx) {
+    hash = await wallet.provider.sendTransaction(tx)
+    return hash
+  }
+  async function customSignTransaction (tx) {
+    transaction = tx
+    return wallet.sign(tx)
+  }
+
+  if (config.token === 'ETH') {
+    const transaction = {
+      gasLimit: config.gasLimit,
+      gasPrice: gasPrice,
+      to: to,
+      value: amount,
+      chainId: network.chainId
     }
 
-    const wallet = new Wallet(config.privateKey);
-    const provider = ethers.providers.getDefaultProvider(chainName);
+    await wallet.sendTransaction(transaction)
+  } else {
+    const customSigner = getCustomSigner(wallet, customSignTransaction, customSendTransaction)
+    const tokenContract = config.tokenContracts[config.token]
+    const contractAddress = tokenContract.address
+    const contract = new Contract(contractAddress, tokenContract.abi, customSigner)
+    const bigNumberAmount = ethers.utils.parseUnits(amount.toString(), 'ether')
 
-    wallet.provider = provider;
-    if (config.token === 'ETH') {
-        const transaction = {
-            gasLimit: config.gasLimit,
-            gasPrice: gasPrice,
-            to: to,
-            value: amount,
-            chainId: chainId
-        };
-    
-        return await wallet.sendTransaction(transaction);
-    } else {
-        let hash = null;
+    await contract.transfer(to, bigNumberAmount)
 
-        async function getAddress() { return wallet.address; }
-        async function sign(transaction) { return wallet.sign(transaction); }
+    transaction.hash = hash
+    transaction.from = wallet.address
+    transaction.value = bigNumberAmount
+  }
 
-        async function resolveName(addressOrName) { return await provider.resolveName(addressOrName); }
-        async function estimateGas(transaction) { return await provider.estimateGas(transaction); }
-        async function getGasPrice() { return await provider.getGasPrice(); }
-        async function getTransactionCount(blockTag) { return await provider.getTransactionCount(blockTag); }
-        async function sendTransaction(transaction) {
-            hash = await provider.sendTransaction(transaction);
-            return hash;
-        }
-        
-        const customSigner = {
-            getAddress: getAddress,
-            provider: {
-                resolveName: resolveName,
-                estimateGas: estimateGas,
-                getGasPrice: getGasPrice,
-                getTransactionCount: getTransactionCount,
-                sendTransaction: sendTransaction
-            },
-            sign: sign
-        }
+  return transaction
+}
 
-        const tokenContract = config.tokenContracts[config.token];
-        const contractAddress = tokenContract.address;
-        const contract = new Contract(contractAddress, tokenContract.abi, customSigner);
-        const bigNumberAmount = ethers.utils.bigNumberify(amount);
-        await contract.transfer(to, bigNumberAmount);
+function getCustomSigner (wallet, signTransaction, sendTransaction) {
+  const provider = wallet.provider
 
-        return hash;
-    }
+  async function getAddress () { return wallet.address }
+
+  async function resolveName (addressOrName) { return provider.resolveName(addressOrName) }
+  async function estimateGas (transaction) { return provider.estimateGas(transaction) }
+  async function getGasPrice () { return provider.getGasPrice() }
+  async function getTransactionCount (blockTag) { return provider.getTransactionCount(blockTag) }
+
+  const customSigner = {
+    getAddress: getAddress,
+    provider: {
+      resolveName: resolveName,
+      estimateGas: estimateGas,
+      getGasPrice: getGasPrice,
+      getTransactionCount: getTransactionCount,
+      sendTransaction: sendTransaction
+    },
+    sign: signTransaction
+  }
+
+  return customSigner
 }
 
 module.exports = {
-    needsFunding: needsFunding,
-    getAddress: getAddress,
-    getAmount: getAmount,
-    getGasPrice: prices.getGasPrice,
-    sendTransaction: sendTransaction,
-    info: info,
-    logTransaction: logTransaction,
-    error: error
+  needsFunding: needsFunding,
+  getAddress: getAddress,
+  getAmount: getAmount,
+  getGasPrice: prices.getGasPrice,
+  sendTransaction: sendTransaction,
+  info: info,
+  logTransaction: logTransaction,
+  error: error
 }
