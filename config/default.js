@@ -1,10 +1,11 @@
 // Work hours per label
 const BOUNTY_LABELS = {
-  'bounty-xs': 1,
-  'bounty-s': 10,
-  'bounty-m': 100,
-  'bounty-l': 1000,
-  'bounty-xl': 10000
+  'bounty-xs': 2,
+  'bounty-s': 4,
+  'bounty-m': 8,
+  'bounty-l': 24,
+  'bounty-xl': 48,
+  'bounty-xxl': 72
 }
 
 const ERC20_ABI = [
@@ -32,20 +33,23 @@ const ERC20_ABI = [
   }
 ]
 
+// SNT test address (ropsten): 0x744d70fdbe2ba4cf95131626614a1763df805b9e
+// STT test address (ropsten): 0xc55cF4B03948D7EBc8b9E8BAD92643703811d162
+
 const TOKEN_CONTRACTS = {
-  'STT': {
-    address: '0xc55cF4B03948D7EBc8b9E8BAD92643703811d162',
+  'SNT': {
+    address: '0x744d70FDBE2Ba4CF95131626614a1763DF805B9E',
     abi: ERC20_ABI
   },
-  'SNT': {
-    address: '0x744d70fdbe2ba4cf95131626614a1763df805b9e',
+  'ANT': {
+    address: '0x960b236A07cf122663c4303350609A66A7B288C0',
     abi: ERC20_ABI
   }
 }
 
 module.exports = {
   // Debug mode for testing the bot
-  debug: true,
+  // debug: true,
 
   // URL where the bot is listening (e.g. '/funding')
   urlEndpoint: '/',
@@ -54,19 +58,19 @@ module.exports = {
   signerPath: 'https://ropsten.infura.io',
 
   // Address with the funding for the bounties (hex value starting with 0x)
-  sourceAddress: '0x26a4D114B98C4b0B0118426F10fCc1112AA2864d',
+  sourceAddress: '',
 
   // Private key for ether.js wallet (hex value starting with 0x)
   privateKey: '',
 
   // Token of the currency for fetching real time prices (e.g. 'SNT')
-  token: 'STT',
+  token: '',
 
   // Limit for the gas used in a transaction (e.g. 92000)
-  gasLimit: 92000,
+  gasLimit: 115000,
 
   // Price per hour you will pay in dolars (e.g. 35)
-  priceHour: 1,
+  priceHour: 35,
 
   // Delay before funding a bounty (e.g. 3600000)
   delayInMiliSeconds: 10000,
@@ -81,5 +85,5 @@ module.exports = {
   githubUsername: 'status-open-bounty',
 
   // Activate real transactions
-  realTransaction: false
+  // realTransaction: false
 }
