@@ -96,17 +96,17 @@ const processRequest = function (req) {
     return new Promise((resolve, reject) => {
         Promise.all([amountPromise, gasPricePromise])
             .then(function (results) {
-                let amount = results[0];
-                let gasPrice = results[1];
+                const amount = results[0];
+                const gasPrice = results[1];
 
                 bot.sendTransaction(to, amount, gasPrice)
-                    .then(function () {
+                    .then(function (hash) {
+                        bot.logTransaction(hash);
                         resolve();
                     })
                     .catch(function (err) {
                         reject(err);
                     });
-
             })
             .catch(function (err) {
                 reject(err);

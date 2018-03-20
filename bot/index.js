@@ -2,12 +2,15 @@ const winston = require('winston');
 
 const ethers = require('ethers');
 const Wallet = ethers.Wallet;
+const Contract = ethers.Contract;
 const providers = ethers.providers;
 const utils = ethers.utils;
 
 const prices = require('./prices');
 const config = require('../config');
 const github = require('./github');
+
+const contractAddressString = 'Contract address:';
 
 
 const logger = winston.createLogger({
@@ -34,7 +37,7 @@ const needsFunding = function (req) {
 
 const hasAddress = function (req) {
     const commentBody = req.body.comment.body;
-    if (commentBody.search('Contract address:') === -1) {
+    if (commentBody.search(contractAddressString) === -1) {
         return false;
     } else {
         return true;
@@ -43,34 +46,15 @@ const hasAddress = function (req) {
 
 const getAddress = function (req) {
     const commentBody = req.body.comment.body;
-    return commentBody.substring(commentBody.search("Contract address:") + 19, commentBody.search("Contract address:") + 61)
-}
-
-const getLabelMock = function (req) {
-    return new Promise((resolve, reject) => {
-        github.getLabels(req)
-            .then(labels => {
-                const bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
-                if (bountyLabels.length === 1) {
-                    resolve(bountyLabels[0]);
-                } else {
-                    reject('Error getting bounty labels: ' + bountyLabels);
-                }
-            })
-            .catch((err) => {
-                reject(err)
-            });
-    });
+    const index = commentBody.search(contractAddressString) + 19
+    return commentBody.substring(index, index + 42)
 }
 
 const getLabel = function (req) {
-    if (config.debug) {
-        return getLabelMock(req);
-    }
     return new Promise((resolve, reject) => {
         github.getLabels(req)
             .then(labels => {
-                const bountyLabels = labels.filter(name => config.bountyLabels.hasOwnProperty(name));
+                const bountyLabels = labels.filter(label => config.bountyLabels.hasOwnProperty(label.name));
                 if (bountyLabels.length === 1) {
                     resolve(bountyLabels[0]);
                 } else {
@@ -86,7 +70,6 @@ const getAmountMock = function (req) {
     return new Promise((resolve, reject) => {
         resolve(10);
     });
-
 }
 
 const getAmount = function (req) {
@@ -98,7 +81,7 @@ const getAmount = function (req) {
             .then(function (values) {
                 let label = values[0];
                 let tokenPrice = values[1];
-                let amountToPayDollar = config.priceHour * config.bountyLabels[label];
+                let amountToPayDollar = config.priceHour * config.bountyLabels[label.name];
                 resolve(amountToPayDollar / tokenPrice);
             })
             .catch((err) => {
@@ -128,10 +111,7 @@ const error = function (errorMessage) {
 }
 
 
-
-
-const sendTransaction = function (to, amount, gasPrice) {
-
+const sendTransaction = async function (to, amount, gasPrice) {
     var chainId = providers.Provider.chainId.ropsten;
     var chainName = providers.networks.ropsten;
 
@@ -144,27 +124,52 @@ const sendTransaction = function (to, amount, gasPrice) {
     const provider = ethers.providers.getDefaultProvider(chainName);
 
     wallet.provider = provider;
+    if (config.token === 'ETH') {
+        const transaction = {
+            gasLimit: config.gasLimit,
+            gasPrice: gasPrice,
+            to: to,
+            value: amount,
+            chainId: chainId
+        };
+    
+        return await wallet.sendTransaction(transaction);
+    } else {
+        let hash = null;
 
+        async function getAddress() { return wallet.address; }
+        async function sign(transaction) { return wallet.sign(transaction); }
 
-    var transaction = {
-        gasLimit: config.gasLimit,
-        gasPrice: gasPrice,
-        to: to,
-        value: amount,
-        chainId: chainId
-    };
+        async function resolveName(addressOrName) { return await provider.resolveName(addressOrName); }
+        async function estimateGas(transaction) { return await provider.estimateGas(transaction); }
+        async function getGasPrice() { return await provider.getGasPrice(); }
+        async function getTransactionCount(blockTag) { return await provider.getTransactionCount(blockTag); }
+        async function sendTransaction(transaction) {
+            hash = await provider.sendTransaction(transaction);
+            return hash;
+        }
+        
+        const customSigner = {
+            getAddress: getAddress,
+            provider: {
+                resolveName: resolveName,
+                estimateGas: estimateGas,
+                getGasPrice: getGasPrice,
+                getTransactionCount: getTransactionCount,
+                sendTransaction: sendTransaction
+            },
+            sign: sign
+        }
 
-    return new Promise((resolve, reject) => {
-        wallet.sendTransaction(transaction)
-            .then(function(hash) {
-                logTransaction(hash);
-                resolve(hash);
-            }).catch(function(err) {
-                reject(err);
-            });
-    });
+        const tokenContract = config.tokenContracts[config.token];
+        const contractAddress = tokenContract.address;
+        const contract = new Contract(contractAddress, tokenContract.abi, customSigner);
+        const bigNumberAmount = ethers.utils.bigNumberify(amount);
+        await contract.transfer(to, bigNumberAmount);
+
+        return hash;
+    }
 }
-
 
 module.exports = {
     needsFunding: needsFunding,
