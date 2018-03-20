@@ -9,6 +9,8 @@
 const config = require('./config')
 const bot = require('./bot')
 const crypto = require('crypto')
+const lru = require('lru-cache')
+const previouslyFundedContracts = lru(10)
 
 const express = require('express')
 const cors = require('cors')
@@ -35,8 +37,9 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
   if (validation.correct) {
     setTimeout(async () => {
       try {
-        await processRequest(req)
-        bot.info(`issue well funded: ${req.body.issue.url}`)
+        if (await processRequest(req)) {
+          bot.info(`Issue well funded: ${req.body.issue.url}`)
+        }
       } catch (err) {
         bot.error(`Error processing request: ${req.body.issue.url}`)
         bot.error(err)
@@ -82,11 +85,22 @@ function validateRequest (req) {
 
 async function processRequest (req) {
   const to = bot.getAddress(req)
+
+  const previousHash = previouslyFundedContracts.get(to)
+  if (previousHash) {
+    bot.info(`Issue has been funded before (tx hash=${previousHash}), ignoring`)
+    return null
+  }
+
   const amount = await bot.getAmount(req)
   const gasPrice = await bot.getGasPrice()
-  const hash = await bot.sendTransaction(to, amount, gasPrice)
+  const transaction = await bot.sendTransaction(to, amount, gasPrice)
 
-  bot.logTransaction(hash)
+  previouslyFundedContracts.set(to, transaction.hash)
+
+  bot.logTransaction(transaction)
+
+  return transaction
 }
 
 const port = process.env.PORT || 8181
