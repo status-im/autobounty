@@ -14,8 +14,14 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: './log/error.log', level: 'error' }),
-    new winston.transports.File({ filename: './log/info.log', level: 'info' })
-    // new winston.transports.File({ filename: './log/combined.log' })
+    new winston.transports.File({ filename: './log/info.log', level: 'info' }),
+    new winston.transports.Console({
+      format: winston.format.simple(),
+      level: 'debug',
+      colorize: true,
+      stderrLevels: ['error', 'debug', 'info'],
+      silent: process.env.NODE_ENV === 'production'
+    })
   ]
 })
 
@@ -82,17 +88,25 @@ function error (errorMessage) {
 }
 
 async function sendTransaction (to, amount, gasPrice) {
-  let hash = null
-  let chainId = providers.Provider.chainId.ropsten
-  let chainName = providers.networks.ropsten
-
-  if (config.realTransaction) {
-    chainId = providers.Provider.chainId.homestead
-    chainName = providers.networks.homestead
+  if (isNaN(amount)) {
+    throw Error('Invalid amount')
   }
 
+  let transaction = null
+  let hash = null
+
+  const network = providers.Provider.getNetwork(config.realTransaction ? 'homestead' : 'ropsten')
   const wallet = new Wallet(config.privateKey)
-  wallet.provider = ethers.providers.getDefaultProvider(chainName)
+  wallet.provider = ethers.providers.getDefaultProvider(network)
+
+  async function customSendTransaction (tx) {
+    hash = await wallet.provider.sendTransaction(tx)
+    return hash
+  }
+  async function customSignTransaction (tx) {
+    transaction = tx
+    return wallet.sign(tx)
+  }
 
   if (config.token === 'ETH') {
     const transaction = {
@@ -100,28 +114,31 @@ async function sendTransaction (to, amount, gasPrice) {
       gasPrice: gasPrice,
       to: to,
       value: amount,
-      chainId: chainId
+      chainId: network.chainId
     }
 
-    hash = await wallet.sendTransaction(transaction)
+    await wallet.sendTransaction(transaction)
   } else {
-    const customSigner = getCustomSigner(wallet, sendTransaction)
+    const customSigner = getCustomSigner(wallet, customSignTransaction, customSendTransaction)
     const tokenContract = config.tokenContracts[config.token]
     const contractAddress = tokenContract.address
     const contract = new Contract(contractAddress, tokenContract.abi, customSigner)
-    const bigNumberAmount = ethers.utils.bigNumberify(amount)
+    const bigNumberAmount = ethers.utils.parseUnits(amount.toString())
 
     await contract.transfer(to, bigNumberAmount)
+
+    transaction.hash = hash
+    transaction.from = wallet.address
+    transaction.value = bigNumberAmount
   }
 
-  return hash
+  return transaction
 }
 
-function getCustomSigner (wallet, sendTransaction) {
+function getCustomSigner (wallet, signTransaction, sendTransaction) {
   const provider = wallet.provider
 
   async function getAddress () { return wallet.address }
-  async function sign (transaction) { return wallet.sign(transaction) }
 
   async function resolveName (addressOrName) { return provider.resolveName(addressOrName) }
   async function estimateGas (transaction) { return provider.estimateGas(transaction) }
@@ -137,7 +154,7 @@ function getCustomSigner (wallet, sendTransaction) {
       getTransactionCount: getTransactionCount,
       sendTransaction: sendTransaction
     },
-    sign: sign
+    sign: signTransaction
   }
 
   return customSigner

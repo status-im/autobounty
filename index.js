@@ -38,8 +38,8 @@ app.post(`${config.urlEndpoint}`, jsonParser, function (req, res, next) {
         bot.info(`issue well funded: ${req.body.issue.url}`)
       } catch (err) {
         bot.error(`Error processing request: ${req.body.issue.url}`)
-        bot.error(`Error: ${err}`)
-        bot.error(`Dump: ${req.body}`)
+        bot.error(err)
+        bot.error(`Dump: ${JSON.stringify(req.body)}`)
       }
     }, config.delayInMiliSeconds)
   } else {
