@@ -1,9 +1,7 @@
 const winston = require('winston')
 
 const ethers = require('ethers')
-const Wallet = ethers.Wallet
-const Contract = ethers.Contract
-const providers = ethers.providers
+const { Wallet, Contract, providers } = ethers
 
 const config = require('../config')
 const prices = require('./prices')
@@ -33,12 +31,7 @@ function needsFunding (req) {
 }
 
 function hasAddress (req) {
-  const commentBody = req.body.comment.body
-  if (commentBody.search(contractAddressString) === -1) {
-    return false
-  } else {
-    return true
-  }
+  return req.body.comment.body.search(contractAddressString) !== -1
 }
 
 function getAddress (req) {
@@ -48,32 +41,36 @@ function getAddress (req) {
 }
 
 async function getLabel (req) {
-  const labels = await github.getLabels(req)
-  const bountyLabels = labels.filter(label => config.bountyLabels.hasOwnProperty(label.name))
+  const labelNames = await github.getLabels(req)
+  const bountyLabels = labelNames.filter(labelName => config.bountyLabels.hasOwnProperty(labelName))
   if (bountyLabels.length === 1) {
     return bountyLabels[0]
-  } else {
-    throw new Error('Error getting bounty labels')
   }
+
+  throw new Error('Error getting bounty labels')
 }
 
 async function getAmount (req) {
-  const label = await getLabel(req)
+  const labelName = await getLabel(req)
   const tokenPrice = await prices.getTokenPrice(config.token)
 
-  const amountToPayDollar = config.priceHour * config.bountyLabels[label.name]
+  const bountyLabelHours = config.bountyLabels[labelName]
+  if (!bountyLabelHours) {
+    throw new Error(`Label '${labelName}' not found in config`)
+  }
+  const amountToPayDollar = config.priceHour * bountyLabelHours
   return (amountToPayDollar / tokenPrice)
 }
 
 // Logging functions
 
 function logTransaction (tx) {
-  logger.info(`[OK] Succesfully funded bounty with transaction ${tx.hash}`)
-  logger.info(` * From: ${tx.from}`)
-  logger.info(` * To: ${tx.to}`)
-  logger.info(` * Amount: ${tx.value}`)
-  logger.info(` * Gas Price: ${tx.gasPrice}`)
-  logger.info(`====================================================`)
+  info(`[OK] Succesfully funded bounty with transaction ${tx.hash}`)
+  info(` * From: ${tx.from}`)
+  info(` * To: ${tx.to}`)
+  info(` * Amount: ${tx.value}`)
+  info(` * Gas Price: ${tx.gasPrice}`)
+  info(`====================================================`)
 }
 
 function info (msg) {
@@ -113,7 +110,7 @@ async function sendTransaction (to, amount, gasPrice) {
     const contractAddress = tokenContract.address
     const contract = new Contract(contractAddress, tokenContract.abi, customSigner)
     const bigNumberAmount = ethers.utils.bigNumberify(amount)
-    
+
     await contract.transfer(to, bigNumberAmount)
   }
 

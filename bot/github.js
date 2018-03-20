@@ -7,9 +7,8 @@ const bot = require('../bot')
 // Returns the url for getting the labels of a request (Github API v3)
 // req has req.issue.labels_url
 function getLabelsURL (req) {
-  let url = req.body.issue.labels_url
   // Make the URL generic removing the name of the label
-  return url.replace('{/name}', '')
+  return req.body.issue.labels_url.replace('{/name}', '')
 }
 
 // Returns all the bounty labelNames of a given issue (Github API v3)

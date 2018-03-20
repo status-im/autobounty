@@ -80,14 +80,9 @@ function validateRequest (req) {
 }
 
 async function processRequest (req) {
-  // const wallet = bot.wallet
-
   const to = bot.getAddress(req)
-
-  // Asynchronous requests for Gas Price and Amount
   const amount = await bot.getAmount(req)
   const gasPrice = await bot.getGasPrice()
-
   const hash = await bot.sendTransaction(to, amount, gasPrice)
 
   bot.logTransaction(hash)
