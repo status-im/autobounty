@@ -1,10 +1,9 @@
 /*
-* Bot that receives a POST request (from a GitHub issue comment webhook)
-* and in case it's a comment that has "@autobounty <decimal> <currency>"
-* awards that bounty to the address posted earlier in the thread (by the
-* commiteth bot).
-* REVIEW parsing, non-persisting storage of addresses, hardcoded string length.
-* Depends on commiteth version as of 2017-06-10.
+* Bot that receives a POST request (from a GitHub issue comment webhook),
+* finds the address of the bounty contract and funds it automatically
+* with either ETH or any ERC20/223 token.
+* REVIEW hardcoded string length.
+* Depends on openbounty version as of 2018-03-20.
 */
 
 const config = require('./config')
@@ -90,5 +89,5 @@ async function processRequest (req) {
 
 const port = process.env.PORT || 8181
 app.listen(port, function () {
-  bot.info('Autobounty listening on port', port)
+  bot.info('Autobounty listening on port' + port)
 })
