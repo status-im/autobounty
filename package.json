@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@octokit/rest": "^15.2.5",
     "body-parser": "^1.17.2",
     "cors": "^2.8.1",
     "ethers": "^3.0",
