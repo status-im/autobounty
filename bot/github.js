@@ -12,7 +12,7 @@ function getLabelsURL (req) {
 }
 
 // Returns all the bounty labelNames of a given issue (Github API v3)
-function getLabels (req) {
+const getLabels = function (req) {
   const path = getLabelsURL(req).replace('https://api.github.com', '')
   const options = {
     hostname: 'api.github.com',

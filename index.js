@@ -89,5 +89,5 @@ async function processRequest (req) {
 
 const port = process.env.PORT || 8181
 app.listen(port, function () {
-  bot.info('Autobounty listening on port' + port)
+  bot.info('Autobounty listening on port ' + port)
 })

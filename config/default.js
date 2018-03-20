@@ -3,9 +3,9 @@ const BOUNTY_LABELS = {
   'bounty-xs': 2,
   'bounty-s': 4,
   'bounty-m': 8,
-  'bounty-l': 24,
-  'bounty-xl': 48,
-  'bounty-xxl': 72
+  'bounty-l': 20,
+  'bounty-xl': 40,
+  'bounty-xxl': 60
 }
 
 const ERC20_ABI = [
@@ -49,7 +49,7 @@ const TOKEN_CONTRACTS = {
 
 module.exports = {
   // Debug mode for testing the bot
-  // debug: true,
+   debug: true,
 
   // URL where the bot is listening (e.g. '/funding')
   urlEndpoint: '/',
@@ -64,7 +64,7 @@ module.exports = {
   privateKey: '',
 
   // Token of the currency for fetching real time prices (e.g. 'SNT')
-  token: '',
+  token: 'SNT',
 
   // Limit for the gas used in a transaction (e.g. 92000)
   gasLimit: 115000,
@@ -85,5 +85,5 @@ module.exports = {
   githubUsername: 'status-open-bounty',
 
   // Activate real transactions
-  // realTransaction: false
+   realTransaction: false
 }
