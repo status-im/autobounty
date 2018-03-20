@@ -23,6 +23,21 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Mocha Tests",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/test"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }
