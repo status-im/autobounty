@@ -1,6 +1,6 @@
 'use strict'
 
-function getGasPrice () {
+async function getGasPrice () {
   const url = 'https://ethgasstation.info/json/ethgasAPI.json'
   // return new pending promise
   return new Promise((resolve, reject) => {
@@ -28,7 +28,7 @@ function getGasPrice () {
   })
 }
 
-function getTokenPrice (token) {
+async function getTokenPrice (token) {
   if (token === 'STT') {
     return 1
   }

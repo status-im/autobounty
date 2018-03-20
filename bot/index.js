@@ -53,7 +53,7 @@ async function getLabel (req) {
     return bountyLabels[0]
   }
 
-  throw new Error('Error getting bounty labels')
+  throw new Error(`Error getting bounty labels: ${JSON.stringify(labelNames)}`)
 }
 
 async function getAmount (req) {

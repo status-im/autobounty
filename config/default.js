@@ -49,7 +49,7 @@ const TOKEN_CONTRACTS = {
 
 module.exports = {
   // Debug mode for testing the bot
-   debug: true,
+  debug: true,
 
   // URL where the bot is listening (e.g. '/funding')
   urlEndpoint: '/',
@@ -85,5 +85,5 @@ module.exports = {
   githubUsername: 'status-open-bounty',
 
   // Activate real transactions
-   realTransaction: false
+  realTransaction: false
 }
