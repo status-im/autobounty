@@ -53,10 +53,10 @@ module.exports = {
   // URL for the signer
   signerPath: 'https://ropsten.infura.io',
 
-  // Address with the funding for the bounties
+  // Address with the funding for the bounties (hex value starting with 0x)
   sourceAddress: '0x26a4D114B98C4b0B0118426F10fCc1112AA2864d',
 
-  // Private key for ether.js wallet
+  // Private key for ether.js wallet (hex value starting with 0x)
   privateKey: '',
 
   // Token of the currency for fetching real time prices (e.g. 'SNT')

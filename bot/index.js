@@ -91,6 +91,9 @@ async function sendTransaction (to, amount, gasPrice) {
   if (isNaN(amount)) {
     throw Error('Invalid amount')
   }
+  if (!config.privateKey.startsWith('0x')) {
+    throw Error('Private key should start with 0x')
+  }
 
   let transaction = null
   let hash = null
