@@ -126,7 +126,7 @@ async function sendTransaction (to, amount, gasPrice) {
     const tokenContract = config.tokenContracts[config.token]
     const contractAddress = tokenContract.address
     const contract = new Contract(contractAddress, tokenContract.abi, customSigner)
-    const bigNumberAmount = ethers.utils.parseUnits(amount.toString())
+    const bigNumberAmount = ethers.utils.parseUnits(amount.toString(), 'ether')
 
     await contract.transfer(to, bigNumberAmount)
 
