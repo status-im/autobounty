@@ -7,7 +7,8 @@ const config = require('../config')
 const prices = require('./prices')
 const github = require('./github')
 
-const contractAddressString = 'Contract address:'
+const winnerString = 'Winner:'
+const contractAddressString = 'Contract address: '
 
 const logger = winston.createLogger({
   level: 'info',
@@ -26,23 +27,31 @@ const logger = winston.createLogger({
 })
 
 function needsFunding (req) {
+  if (req.headers['x-github-event'] !== 'issue_comment') {
+    return false
+  }
   if (req.body.action !== 'edited' || !req.body.hasOwnProperty('comment')) {
     return false
   } else if (req.body.comment.user.login !== config.githubUsername) {
     return false
   } else if (!hasAddress(req)) {
     return false
+  } else if (hasWinner(req)) {
+    return false
   }
   return true
 }
 
+function hasWinner (req) {
+  return req.body.comment.body.search(winnerString) !== -1
+}
 function hasAddress (req) {
   return req.body.comment.body.search(contractAddressString) !== -1
 }
 
 function getAddress (req) {
   const commentBody = req.body.comment.body
-  const index = commentBody.search(contractAddressString) + 19
+  const index = commentBody.search(contractAddressString) + contractAddressString.length
   return commentBody.substring(index, index + 42)
 }
 
@@ -85,7 +94,7 @@ function info (msg) {
 }
 
 function error (errorMessage) {
-  logger.error(`[ERROR] Request processing failed: ${errorMessage}`)
+  logger.error(`Request processing failed: ${errorMessage}`)
 }
 
 async function sendTransaction (to, amount, gasPrice) {
@@ -169,6 +178,7 @@ module.exports = {
   getAddress: getAddress,
   getAmount: getAmount,
   getGasPrice: prices.getGasPrice,
+  getTokenPrice: prices.getTokenPrice,
   sendTransaction: sendTransaction,
   info: info,
   logTransaction: logTransaction,
