@@ -48,7 +48,8 @@ function getAddress (req) {
 
 async function getLabel (req) {
   const labelNames = await github.getLabels(req)
-  const bountyLabels = labelNames.filter(labelName => config.bountyLabels.hasOwnProperty(labelName))
+  const upperCaseLabelNames = labelNames.map(l => l.toUpperCase())
+  const bountyLabels = Object.keys(config.bountyLabels).filter(bountyLabel => upperCaseLabelNames.find(l => l === bountyLabel.toUpperCase()))
   if (bountyLabels.length === 1) {
     return bountyLabels[0]
   }
