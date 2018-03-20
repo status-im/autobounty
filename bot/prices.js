@@ -29,6 +29,10 @@ function getGasPrice () {
 }
 
 function getTokenPrice (token) {
+  if (token === 'STT') {
+    return 1
+  }
+
   const currency = 'USD'
   const url = `https://min-api.cryptocompare.com/data/price?fsym=${token}&tsyms=${currency}`
   // return new pending promise

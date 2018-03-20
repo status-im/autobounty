@@ -60,7 +60,7 @@ module.exports = {
   privateKey: '',
 
   // Token of the currency for fetching real time prices (e.g. 'SNT')
-  token: 'SNT',
+  token: 'STT',
 
   // Limit for the gas used in a transaction (e.g. 92000)
   gasLimit: 92000,
