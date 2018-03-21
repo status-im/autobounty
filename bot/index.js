@@ -58,9 +58,13 @@ function hasAddress (req) {
 
 function getAddress (req) {
   const commentBody = req.body.comment.body
-  const index = commentBody.search(contractAddressString) + contractAddressString.length + 1
-  console.log("address: ", commentBody.substring(index, index + 42))
-  return commentBody.substring(index, index + 42)
+  const index = commentBody.search(contractAddressString)
+  if (index === -1) {
+    return undefined
+  }
+  const addressIndex = index + contractAddressString.length + 1
+  console.log('address: ', commentBody.substring(addressIndex, addressIndex + 42))
+  return commentBody.substring(addressIndex, addressIndex + 42)
 }
 
 async function getLabel (req) {

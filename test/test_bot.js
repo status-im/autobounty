@@ -4,7 +4,7 @@ const config = require('../config')
 const bot = require('../bot')
 
 // status-open-bounty comment from https://github.com/status-im/autobounty/issues/1
-const sobComment = 'Current balance: 0.000000 ETH\nTokens: SNT: 2500.00 ANT: 25.00\nContract address: 0x3645fe42b1a744ad98cc032c22472388806f86f9\nNetwork: Mainnet\n To claim this bounty sign up at https://openbounty.status.im and make sure to update your Ethereum address in My Payment Details so that the bounty is correctly allocated.\nTo fund it, send ETH or ERC20/ERC223 tokens to the contract address.'
+const sobComment = 'Current balance: 0.000000 ETH\nTokens: SNT: 2500.00 ANT: 25.00\nContract address: [0x3645fe42b1a744ad98cc032c22472388806f86f9](https://etherscan.io/address/0x3645fe42b1a744ad98cc032c22472388806f86f9)\nNetwork: Mainnet\n To claim this bounty sign up at https://openbounty.status.im and make sure to update your Ethereum address in My Payment Details so that the bounty is correctly allocated.\nTo fund it, send ETH or ERC20/ERC223 tokens to the contract address.'
 const sobCommentWithWinner = 'Balance: 0.000000 ETH\nContract address: [0xe02fbffb3422ddb8e2227c3495f710ba4f8e0c10](https://etherscan.io/address/0xe02fbffb3422ddb8e2227c3495f710ba4f8e0c10)\nNetwork: Mainnet\nStatus: Pending maintainer confirmation\nWinner: foopang\nVisit [https://openbounty.status.im](https://openbounty.status.im) to learn more.'
 
 // Fake requests
@@ -42,6 +42,9 @@ describe('Bot behavior', function () {
   describe('#getAddress', function () {
     it('should return the address from a status-open-bounty bot comment', function () {
       assert.equal(bot.getAddress(requests[3]), '0x3645fe42b1a744ad98cc032c22472388806f86f9')
+    })
+    it('should not return the address from a comment not containing an address', function () {
+      assert.isUndefined(bot.getAddress(requests[1]))
     })
   })
 
