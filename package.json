@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "debug": "node --inspect-brk index.js",
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha --timeout 5s"
   },
   "author": "",
   "license": "ISC",
