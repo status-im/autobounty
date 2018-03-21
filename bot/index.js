@@ -9,6 +9,7 @@ const github = require('./github')
 
 const winnerString = 'Winner:'
 const contractAddressString = 'Contract address: '
+const paidString = 'Paid to:'
 
 const logger = winston.createLogger({
   level: 'info',
@@ -38,8 +39,14 @@ function needsFunding (req) {
     return false
   } else if (hasWinner(req)) {
     return false
+  } else if (isPaid(req)) {
+    return false
   }
   return true
+}
+
+function isPaid (req) {
+  return req.body.comment.body.search(paidString) !== -1
 }
 
 function hasWinner (req) {
