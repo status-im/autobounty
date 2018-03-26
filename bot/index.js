@@ -7,9 +7,9 @@ const config = require('../config')
 const prices = require('./prices')
 const github = require('./github')
 
-const winnerString = 'Winner:'
-const contractAddressString = 'Contract address: '
-const paidString = 'Paid to:'
+const winnerPrefix = 'Winner:'
+const contractAddressPrefix = 'Contract address: '
+const paidPrefix = 'Paid to:'
 
 const logger = winston.createLogger({
   level: 'info',
@@ -37,6 +37,8 @@ function needsFunding (req) {
     return false
   } else if (!hasAddress(req)) {
     return false
+  } else if (isFunded(req)) {
+    return false
   } else if (hasWinner(req)) {
     return false
   } else if (isPaid(req)) {
@@ -45,24 +47,34 @@ function needsFunding (req) {
   return true
 }
 
+function isFunded (req) {
+  const prefix = `Tokens: ${config.token}: `
+  const index = req.body.comment.body.search(prefix)
+  if (index === -1) {
+    return false
+  }
+  const value = Number.parseFloat(req.body.comment.body.substring(index + prefix.length))
+  return value > 0
+}
+
 function isPaid (req) {
-  return req.body.comment.body.search(paidString) !== -1
+  return req.body.comment.body.search(paidPrefix) !== -1
 }
 
 function hasWinner (req) {
-  return req.body.comment.body.search(winnerString) !== -1
+  return req.body.comment.body.search(winnerPrefix) !== -1
 }
 function hasAddress (req) {
-  return req.body.comment.body.search(contractAddressString) !== -1
+  return req.body.comment.body.search(contractAddressPrefix) !== -1
 }
 
 function getAddress (req) {
   const commentBody = req.body.comment.body
-  const index = commentBody.search(contractAddressString)
+  const index = commentBody.search(contractAddressPrefix)
   if (index === -1) {
     return undefined
   }
-  const addressIndex = index + contractAddressString.length + 1
+  const addressIndex = index + contractAddressPrefix.length + 1
   console.log('address: ', commentBody.substring(addressIndex, addressIndex + 42))
   return commentBody.substring(addressIndex, addressIndex + 42)
 }
