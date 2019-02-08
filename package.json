@@ -21,7 +21,7 @@
     "ethjs-signer": "^0.1",
     "express": "^4.15.2",
     "helmet": "^3.9.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.11",
     "lru-cache": "^4.1.2",
     "winston": "^3.0.0-rc3"
   },
